@@ -12,11 +12,11 @@
 		.filters-section { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 		.filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; }
 		.filter-group { display: flex; flex-direction: column; }
-		.filter-label { font-size: 12px; font-weight: 600; color: #495057; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+		.filter-label { font-size: 12px; font-weight: 700; color: #111827; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
 		select { padding: 10px 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; color: #495057; background-color: white; cursor: pointer; transition: border-color 0.2s; }
 		select:hover { border-color: #80bdff; }
 		select:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
-		.apply-button { padding: 10px 24px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+		.apply-button { padding: 10px 24px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
 		.apply-button:hover { background: #0056b3; }
 		.apply-button:active { transform: scale(0.98); }
 
@@ -27,12 +27,12 @@
 		/* KPI Cards */
 		.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
 		.kpi-card { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 16px; }
-		.kpi-title { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+		.kpi-title { font-size: 12px; font-weight: 900; color: #111827; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
 		.kpi-actual { font-size: 28px; font-weight: 800; color: #111827; margin-bottom: 4px; }
 		.kpi-revised { font-size: 13px; font-weight: 600; color: #6b7280; margin-bottom: 10px; }
 		.bullet-track { background: #e5e7eb; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
 		.bullet-fill { height: 100%; border-radius: 9999px; transition: width 0.4s ease; }
-		.kpi-percent { font-size: 12px; font-weight: 700; margin-top: 8px; }
+		.kpi-percent { font-size: 12px; font-weight: 800; margin-top: 8px; }
 		.kpi-green { color: #065F46; }
 		.kpi-red { color: #7F1D1D; }
 		.fill-green { background: #10B981; }
@@ -41,18 +41,18 @@
 		/* Table */
 		.table-container { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow-x: auto; }
 		table { width: 100%; border-collapse: collapse; min-width: 1100px; }
-		thead { background: #f8f9fa; border-bottom: 2px solid #dee2e6; position: sticky; top: 0; z-index: 10; }
-		th { padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; color: #495057; text-transform: uppercase; letter-spacing: 0.5px; }
+		thead { background: #eef2ff; border-bottom: 3px solid #c7d2fe; position: sticky; top: 0; z-index: 10; }
+		th { padding: 12px 16px; text-align: left; font-weight: 800; font-size: 13px; color: #111827; text-transform: uppercase; letter-spacing: 0.6px; }
 		th:first-child { padding-left: 24px; }
 		tbody tr { border-bottom: 1px solid #e9ecef; transition: background-color 0.2s; }
 		tbody tr:hover { background-color: #f8f9fa; }
 		tbody tr:last-child { border-bottom: none; }
 		td { padding: 16px; vertical-align: middle; }
-		td:first-child { padding-left: 24px; font-weight: 500; color: #212529; }
+		td:first-child { padding-left: 24px; font-weight: 600; color: #111827; }
 		.metric-cell { line-height: 1.6; }
-		.actual-value { font-size: 18px; font-weight: 600; color: #212529; display: block; margin-bottom: 4px; }
+		.actual-value { font-size: 18px; font-weight: 700; color: #111827; display: block; margin-bottom: 4px; }
 		.plan-value { font-size: 11px; color: #6c757d; display: block; margin-bottom: 4px; }
-		.variance { font-size: 12px; font-weight: 500; display: block; }
+		.variance { font-size: 12px; font-weight: 600; display: block; }
 		.variance.positive { color: #00C853; }
 		.variance.negative { color: #FF5252; }
 		.variance.neutral { color: #9E9E9E; }
@@ -64,7 +64,7 @@
 		.roas-cell.red { background-color: rgba(239, 68, 68, 0.6); color: #7F1D1D; }
 		.roas-cell .actual-value, .roas-cell .plan-value, .roas-cell .variance { color: inherit; }
 
-		.total-row { background: #f8f9fa; font-weight: 600; border-top: 2px solid #dee2e6; }
+		.total-row { background: #f8f9fa; font-weight: 700; border-top: 2px solid #dee2e6; }
 		.total-row td { padding: 18px 16px; }
 
 		@media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -160,6 +160,8 @@
 			document.getElementById('yearFilter').style.display = (type === 'quarter' || type === 'year') ? 'block' : 'none';
 		});
 
+		const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 		function parseMonthYear(monthYearStr) {
 			const months = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11,
 				January:0, February:1, March:2, April:3, May2:4, June:5, July:6, August:7, September:8, October:9, November:10, December:11 };
@@ -242,29 +244,31 @@
 				const admissionsIdx = idxPair('Admissions');
 				const spendIdx = idxPair('Spend');
 				const revenueIdx = idxPair('Revenue');
-				const cplIdx = idxPair('CPL'); // will be ignored for derived CPL
+				const cplIdx = idxPair('CPL'); // ignored, derived later
 				const convIdx = idxPair('Conversion_Rate');
 				const plIdx = idxPair('PL');
-				const roasIdx = idxPair('ROAS'); // will be ignored for derived ROAS
+				const roasIdx = idxPair('ROAS'); // ignored, derived later
 
 				allData = rows.slice(1).filter(r => r[idxUniversity] && String(r[idxUniversity]).trim() !== '').map(r => {
-					const monthYearInfo = parseMonthYear(idxMonthYear !== -1 ? r[idxMonthYear] : '');
+					const monthYearRaw = idxMonthYear !== -1 ? r[idxMonthYear] : '';
+					const monthYearInfo = parseMonthYear(monthYearRaw);
 					const read = (pair, which, parser = parseNumber) => (pair[which] === -1 ? 0 : parser(r[pair[which]]));
-					const pair = (pair, parser = parseNumber) => ({ actual: read(pair,'a',parser), plan: read(pair,'r',parser) });
+					const pairVals = (pair, parser = parseNumber) => ({ actual: read(pair,'a',parser), plan: read(pair,'r',parser) });
 					return {
 						university: idxUniversity !== -1 ? r[idxUniversity] : '',
 						cluster: idxCluster !== -1 ? r[idxCluster] : '',
-						monthYear: idxMonthYear !== -1 ? r[idxMonthYear] : '',
-						month: monthYearInfo.month, year: monthYearInfo.year, monthIndex: monthYearInfo.monthIndex,
-						leads: pair(leadsIdx),
-						admissions: pair(admissionsIdx),
-						spend: pair(spendIdx),
-						revenue: pair(revenueIdx),
-						// cpl and roas present in sheet but will NOT be used directly
-						cplFromSheet: pair(cplIdx),
-						roasFromSheet: pair(roasIdx),
-						convRate: pair(convIdx, parsePercentage),
-						pl: pair(plIdx)
+						monthYear: monthYearRaw,
+						month: monthYearInfo.month,
+						year: monthYearInfo.year,
+						monthIndex: monthYearInfo.monthIndex,
+						leads: pairVals(leadsIdx),
+						admissions: pairVals(admissionsIdx),
+						spend: pairVals(spendIdx),
+						revenue: pairVals(revenueIdx),
+						cplFromSheet: pairVals(cplIdx),
+						roasFromSheet: pairVals(roasIdx),
+						convRate: pairVals(convIdx, parsePercentage),
+						pl: pairVals(plIdx)
 					};
 				});
 
@@ -281,16 +285,72 @@
 			}
 		}
 
+		function clearSelect(selectEl, allLabel) {
+			while (selectEl.firstChild) selectEl.removeChild(selectEl.firstChild);
+			const opt = document.createElement('option');
+			opt.value = '';
+			opt.textContent = allLabel;
+			selectEl.appendChild(opt);
+		}
+
 		function populateFilters() {
-			const monthYears = [...new Set(allData.map(row => row.monthYear))].sort();
+			// Month-Year options (robust build)
 			const monthYearSelect = document.getElementById('monthYear');
-			monthYears.forEach(my => { if (my) { const o=document.createElement('option'); o.value=my; o.textContent=my; monthYearSelect.appendChild(o); } });
-			const years = [...new Set(allData.map(row => row.year))].filter(y => y > 0).sort((a,b) => b-a);
+			clearSelect(monthYearSelect, 'All Months');
+
+			// Prefer existing monthYear string; if missing, synthesize from monthIndex + year
+			const monthYearSet = new Set();
+			allData.forEach(row => {
+				let label = (row.monthYear || '').trim();
+				if (!label && row.year > 0) {
+					const mi = Number(row.monthIndex);
+					if (!Number.isNaN(mi) && mi >= 0 && mi <= 11) {
+						label = `${monthNames[mi]} ${row.year}`;
+					}
+				}
+				if (label) monthYearSet.add(label);
+			});
+
+			const monthYearList = Array.from(monthYearSet);
+			// Sort by year then month if parsable; else alpha
+			monthYearList.sort((a, b) => {
+				const [am, ay] = a.split(' ');
+				const [bm, by] = b.split(' ');
+				const ai = monthNames.indexOf(am);
+				const bi = monthNames.indexOf(bm);
+				const ayNum = parseInt(ay) || 0;
+				const byNum = parseInt(by) || 0;
+				if (ayNum !== byNum) return ayNum - byNum;
+				return ai - bi;
+			});
+			monthYearList.forEach(label => {
+				const option = document.createElement('option');
+				option.value = label;
+				option.textContent = label;
+				monthYearSelect.appendChild(option);
+			});
+
+			// Years
 			const yearSelect = document.getElementById('year');
-			years.forEach(year => { const o=document.createElement('option'); o.value=year; o.textContent=year; yearSelect.appendChild(o); });
-			const clusters = [...new Set(allData.map(row => row.cluster))].filter(c => c).sort();
+			clearSelect(yearSelect, 'All Years');
+			const years = [...new Set(allData.map(r => r.year).filter(y => y && y > 0))].sort((a,b) => b - a);
+			years.forEach(y => {
+				const option = document.createElement('option');
+				option.value = y;
+				option.textContent = y;
+				yearSelect.appendChild(option);
+			});
+
+			// Clusters
 			const clusterSelect = document.getElementById('cluster');
-			clusters.forEach(cluster => { const o=document.createElement('option'); o.value=cluster; o.textContent=cluster; clusterSelect.appendChild(o); });
+			clearSelect(clusterSelect, 'All Clusters');
+			const clusters = [...new Set(allData.map(r => r.cluster).filter(Boolean))].sort();
+			clusters.forEach(c => {
+				const option = document.createElement('option');
+				option.value = c;
+				option.textContent = c;
+				clusterSelect.appendChild(option);
+			});
 		}
 
 		function applyFilters() {
@@ -311,7 +371,7 @@
 				return true;
 			});
 
-			// Aggregate by university with SUMS; derive CPL and ROAS from sums (not sheet)
+			// Aggregate by university with SUMS; derive CPL and ROAS from sums
 			const aggregated = {};
 			filtered.forEach(row => {
 				const k = row.university;
@@ -323,9 +383,8 @@
 						spend: { actual: 0, plan: 0 },
 						revenue: { actual: 0, plan: 0 },
 						pl: { actual: 0, plan: 0 },
-						convRate: { actual: 0, plan: 0 }, // optional (not shown in table)
+						convRate: { actual: 0, plan: 0 },
 						count: 0,
-						// Derived placeholders
 						cpl: { actual: 0, plan: 0 },
 						roas: { actual: 0, plan: 0 }
 					};
@@ -340,13 +399,11 @@
 				a.count++;
 			});
 
-			// Derive CPL = Spend / Leads; ROAS = Revenue / Spend (guard div-by-zero)
 			Object.values(aggregated).forEach(r => {
 				r.cpl.actual = (r.leads.actual > 0) ? (r.spend.actual / r.leads.actual) : 0;
 				r.cpl.plan = (r.leads.plan > 0) ? (r.spend.plan / r.leads.plan) : 0;
 				r.roas.actual = (r.spend.actual > 0) ? (r.revenue.actual / r.spend.actual) : 0;
 				r.roas.plan = (r.spend.plan > 0) ? (r.revenue.plan / r.spend.plan) : 0;
-				// If you need average convRate across months:
 				if (r.count > 0) { r.convRate.actual /= r.count; r.convRate.plan /= r.count; }
 			});
 
@@ -465,13 +522,13 @@
 							<th>Revenue</th>
 							<th>CPL</th>
 							<th>P&L</th>
-							<th>ROAS</th>
+							<th>ROAS ⭐</th>
 						</tr>
 					</thead>
 					<tbody>
 			`;
 
-			// Totals (for derived CPL/ROAS compute from sums)
+			// Totals for derived CPL/ROAS
 			const totals = {
 				leads: { actual: 0, plan: 0 },
 				admissions: { actual: 0, plan: 0 },
@@ -481,9 +538,7 @@
 			};
 
 			filteredData.forEach(row => {
-				// row.cpl and row.roas already derived in applyFilters()
 				const roasClass = getROASClass(row.roas.actual, row.roas.plan);
-
 				html += `
 					<tr>
 						<td>${row.university}</td>
@@ -498,7 +553,6 @@
 						</td>
 					</tr>
 				`;
-
 				totals.leads.actual += row.leads.actual; totals.leads.plan += row.leads.plan;
 				totals.admissions.actual += row.admissions.actual; totals.admissions.plan += row.admissions.plan;
 				totals.spend.actual += row.spend.actual; totals.spend.plan += row.spend.plan;
@@ -506,7 +560,6 @@
 				totals.pl.actual += row.pl.actual; totals.pl.plan += row.pl.plan;
 			});
 
-			// Derive totals CPL & ROAS from sums
 			const totalsCPL = {
 				actual: (totals.leads.actual > 0) ? totals.spend.actual / totals.leads.actual : 0,
 				plan: (totals.leads.plan > 0) ? totals.spend.plan / totals.leads.plan : 0
