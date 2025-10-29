@@ -1047,77 +1047,83 @@
 		  const ctx = document.getElementById("ytdPerformanceChart").getContext("2d");
 		  if (ytdChartInstance) ytdChartInstance.destroy();
 		
-		  ytdChartInstance = new Chart(ctx,
-		        {
-		          type: "bar",
-		          label: "Planned",
-		          data: planArr,
-		          backgroundColor: "#93c5fd",
-		          borderRadius: 6,
-		          barThickness: 20
-		        },
-									    {
-		    data: {
-		      labels: monthLabels,
-		      datasets: [
-		        {
-		          type: "bar",
-		          label: "Actual",
-		          data: actualArr,
-		          backgroundColor: "#3b82f6",
-		          borderRadius: 6,
-		          barThickness: 20
-		        },
-		        {
-		          type: "line",
-		          label: "Actual Trend",
-		          data: actualArr,
-		          borderColor: "#10b981",
-		          tension: 0.4,
-		          fill: false,
-		          pointRadius: 4,
-		          pointBackgroundColor: "#10b981",
-		          borderWidth: 2
-		        }
-		      ]
-		    },
-		    options: {
-		      responsive: true,
-		      maintainAspectRatio: false,
-		      interaction: { mode: "index", intersect: false },
-		      plugins: {
-		        legend: {
-		          position: "bottom",
-		          labels: { usePointStyle: true, boxWidth: 8, padding: 15 }
-		        },
-		        tooltip: {
-		          backgroundColor: "#1e293b",
-		          titleColor: "#fff",
-		          bodyColor: "#f8fafc",
-		          callbacks: {
-		            label: function (context) {
-		              const label = context.dataset.label || "";
-		              return `${label}: ${formatMetricValue(context.parsed.y, metric)}`;
-		            }
+		  ytdChartInstance = new Chart(ctx, {
+		  type: "bar",
+		  data: {
+		    labels: monthLabels,
+		    datasets: [
+		      // Planned bars first
+		      {
+		        type: "bar",
+		        label: "Planned",
+		        data: planArr,
+		        backgroundColor: "#93c5fd",
+		        borderRadius: 6,
+		        barThickness: 20,
+		        order: 1
+		      },
+		      // Actual bars second
+		      {
+		        type: "bar",
+		        label: "Actual",
+		        data: actualArr,
+		        backgroundColor: "#3b82f6",
+		        borderRadius: 6,
+		        barThickness: 20,
+		        order: 2
+		      },
+		      // Actual trend line on top
+		      {
+		        type: "line",
+		        label: "Actual Trend",
+		        data: actualArr,
+		        borderColor: "#10b981",
+		        tension: 0.4,
+		        fill: false,
+		        pointRadius: 4,
+		        pointBackgroundColor: "#10b981",
+		        borderWidth: 2,
+		        order: 3
+		      }
+		    ]
+		  },
+		  options: {
+		    responsive: true,
+		    maintainAspectRatio: false,
+		    interaction: { mode: "index", intersect: false },
+		    plugins: {
+		      legend: {
+		        position: "bottom",
+		        labels: { usePointStyle: true, boxWidth: 8, padding: 15 }
+		      },
+		      tooltip: {
+		        backgroundColor: "#1e293b",
+		        titleColor: "#fff",
+		        bodyColor: "#f8fafc",
+		        callbacks: {
+		          label: function (context) {
+		            const label = context.dataset.label || "";
+		            const value = context.parsed.y;
+		            return `${label}: ${formatMetricValue(value, metric)}`;
 		          }
 		        }
+		      }
+		    },
+		    scales: {
+		      x: {
+		        grid: { display: false },
+		        ticks: { color: "#6b7280" }
 		      },
-		      scales: {
-		        y: {
-		          beginAtZero: true,
-		          ticks: {
-		            callback: val => formatMetricValue(val, metric),
-		            color: "#374151"
-		          },
-		          grid: { color: "#f3f4f6" }
-		        },
-		        x: {
-		          ticks: { color: "#6b7280" },
-		          grid: { display: false }
+		      y: {
+		        grid: { color: "#f3f4f6" },
+		        ticks: {
+		          color: "#374151",
+		          callback: (val) => formatMetricValue(val, metric)
 		        }
 		      }
 		    }
-		  });
+		  }
+		});
 		}
 		
 		// Initialize on page load
