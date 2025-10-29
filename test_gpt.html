@@ -549,8 +549,8 @@
 				let actualDisplay, planDisplay;
 
 				if (kpi.format === 'currency') {
-					actualDisplay = '₹' + value.toFixed(1);
-					planDisplay = '₹' + value.toFixed(1);
+					actualDisplay = '₹' + actual.toFixed(1);
+					planDisplay = '₹' + plan.toFixed(1);
 				} else if (kpi.format === 'percentage') {
 					actualDisplay = actual.toFixed(1) + '%';
 					planDisplay = plan.toFixed(1) + '%';
