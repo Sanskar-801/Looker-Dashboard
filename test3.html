@@ -562,18 +562,18 @@
 				let actualDisplay, planDisplay;
 
 				if (kpi.format === 'currency') {
-					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
-					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					const formattedActual = actual.toLocaleString('en-IN');
+					const formattedPlan = plan.toLocaleString('en-IN');
 					actualDisplay = '₹' + formattedActual;
 					planDisplay = '₹' + formattedPlan;
 				} else if (kpi.format === 'percentage') {
-					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
-					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 					actualDisplay = formattedActual + '%';
 					planDisplay = formattedPlan + '%';
 				} else if (kpi.format === 'decimal') {
-					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
-					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 					actualDisplay = formattedActual;
 					planDisplay = formattedPlan;
 				} else {
@@ -702,17 +702,17 @@
 		
 		  // Use Indian-style comma formatting with 1 decimal
 		  const formattedActual = data.actual.toLocaleString('en-IN', {
-		    minimumFractionDigits: 1,
-		    maximumFractionDigits: 1
+		    minimumFractionDigits: 2,
+		    maximumFractionDigits: 2
 		  });
 		  const formattedPlan = data.plan.toLocaleString('en-IN', {
-		    minimumFractionDigits: 1,
-		    maximumFractionDigits: 1
+		    minimumFractionDigits: 2,
+		    maximumFractionDigits: 2
 		  });
 		
 		  if (format === 'currency') {
-		    actualDisplay = '₹' + formattedActual;
-		    planDisplay = '₹' + formattedPlan;
+		    actualDisplay = '₹' + data.actual.toLocaleString('en-IN');
+		    planDisplay = '₹' + data.plan.toLocaleString('en-IN');
 		  } else if (format === 'decimal') {
 		    actualDisplay = formattedActual;
 		    planDisplay = formattedPlan;
