@@ -548,7 +548,7 @@
 				{ label: 'Admissions', key: 'admissions', format: 'number' },
 				{ label: 'Revenue', key: 'revenue', format: 'currency' },
 				{ label: 'Conversion Rate', key: 'convRate', format: 'percentage' },
-				{ label: 'ROAS', key: 'roas', format: 'decimal', highlight: true }
+				{ label: 'ROAS', key: 'roas', format: 'decimal' }
 			];
 
 			let html = '';
@@ -1047,7 +1047,16 @@
 		  const ctx = document.getElementById("ytdPerformanceChart").getContext("2d");
 		  if (ytdChartInstance) ytdChartInstance.destroy();
 		
-		  ytdChartInstance = new Chart(ctx, {
+		  ytdChartInstance = new Chart(ctx,
+		        {
+		          type: "bar",
+		          label: "Planned",
+		          data: planArr,
+		          backgroundColor: "#93c5fd",
+		          borderRadius: 6,
+		          barThickness: 20
+		        },
+									    {
 		    data: {
 		      labels: monthLabels,
 		      datasets: [
@@ -1056,14 +1065,6 @@
 		          label: "Actual",
 		          data: actualArr,
 		          backgroundColor: "#3b82f6",
-		          borderRadius: 6,
-		          barThickness: 20
-		        },
-		        {
-		          type: "bar",
-		          label: "Planned",
-		          data: planArr,
-		          backgroundColor: "#93c5fd",
 		          borderRadius: 6,
 		          barThickness: 20
 		        },
