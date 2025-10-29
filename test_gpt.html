@@ -66,6 +66,9 @@
 		.info-banner { background: #d1ecf1; color: #0c5460; padding: 12px 20px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; display:none;}
 		@media (max-width: 768px) { body { padding: 10px; } .kpi-section { grid-template-columns: repeat(2, 1fr); } th, td { padding: 10px 8px; font-size: 12px; } .actual-value { font-size: 16px; } .filters-grid { grid-template-columns: 1fr; } }
 	</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 	<div class="dashboard-container">
@@ -125,6 +128,41 @@
 		<div class="table-container" id="tableContainer">
 			<div class="loading">Initializing...</div>
 		</div>
+				<!-- ===== PERFORMANCE TREND CHART SECTION ===== -->
+		<div style="margin-top: 50px; padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+		  <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 16px;">Performance Trend</h3>
+		  
+		  <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+		    <div>
+		      <label for="metricSelect" style="font-weight: 500; color: #374151;">Metric:</label>
+		      <select id="metricSelect" style="margin-left: 8px; padding: 5px 10px; border-radius: 6px; border: 1px solid #d1d5db;">
+		        <option>Revenue</option>
+		        <option>Leads</option>
+		        <option>Admissions</option>
+		        <option>Spend</option>
+		        <option>CPL</option>
+		        <option>Conversion Rate</option>
+		        <option>P&L</option>
+		        <option>ROAS</option>
+		      </select>
+		    </div>
+		
+		    <div>
+		      <label for="durationSelect" style="font-weight: 500; color: #374151;">Duration:</label>
+		      <select id="durationSelect" style="margin-left: 8px; padding: 5px 10px; border-radius: 6px; border: 1px solid #d1d5db;">
+		        <option value="3">3 Months</option>
+		        <option value="6">6 Months</option>
+		        <option value="7" selected>7 Months</option>
+		        <option value="12">1 Year</option>
+		      </select>
+		    </div>
+		  </div>
+		
+		  <div style="height: 400px;">
+		    <canvas id="performanceChart"></canvas>
+		  </div>
+		</div>
+
 	</div>
 
 	<script>
@@ -591,6 +629,183 @@
 
 		// Initialize on window load
 		window.onload = init;
+
+				// ====== PERFORMANCE TREND CHART (REAL DATA) ======
+		
+		let performanceChartInstance = null;
+		
+		// Helper to get filtered monthly data from allData
+		function getMonthlyMetrics(metricKey) {
+		  const monthly = {};
+		
+		  allData.forEach(row => {
+		    const month = row.month;
+		    if (!monthly[month]) {
+		      monthly[month] = { actual: 0, plan: 0, count: 0 };
+		    }
+		
+		    switch (metricKey) {
+		      case "Leads":
+		        monthly[month].actual += +row.leads.actual;
+		        monthly[month].plan += +row.leads.plan;
+		        break;
+		      case "Admissions":
+		        monthly[month].actual += +row.admissions.actual;
+		        monthly[month].plan += +row.admissions.plan;
+		        break;
+		      case "Revenue":
+		        monthly[month].actual += +row.revenue.actual;
+		        monthly[month].plan += +row.revenue.plan;
+		        break;
+		      case "Spend":
+		        monthly[month].actual += +row.spend.actual;
+		        monthly[month].plan += +row.spend.plan;
+		        break;
+		      case "P&L":
+		        monthly[month].actual += +row.pl.actual;
+		        monthly[month].plan += +row.pl.plan;
+		        break;
+		      case "CPL":
+		        monthly[month].actual += +row.leads.actual > 0 ? row.spend.actual / row.leads.actual : 0;
+		        monthly[month].plan += +row.leads.plan > 0 ? row.spend.plan / row.leads.plan : 0;
+		        break;
+		      case "Conversion Rate":
+		        monthly[month].actual += +row.leads.actual > 0 ? (row.admissions.actual / row.leads.actual) * 100 : 0;
+		        monthly[month].plan += +row.leads.plan > 0 ? (row.admissions.plan / row.leads.plan) * 100 : 0;
+		        break;
+		      case "ROAS":
+		        monthly[month].actual += +row.spend.actual > 0 ? (row.revenue.actual / row.spend.actual) : 0;
+		        monthly[month].plan += +row.spend.plan > 0 ? (row.revenue.plan / row.spend.plan) : 0;
+		        break;
+		    }
+		
+		    monthly[month].count++;
+		  });
+		
+		  const monthsOrder = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+		  const actualArr = [];
+		  const planArr = [];
+		  const monthLabels = [];
+		
+		  monthsOrder.forEach(m => {
+		    if (monthly[m]) {
+		      monthLabels.push(m);
+		      actualArr.push(monthly[m].actual / (["CPL","Conversion Rate","ROAS"].includes(metricKey) ? monthly[m].count : 1));
+		      planArr.push(monthly[m].plan / (["CPL","Conversion Rate","ROAS"].includes(metricKey) ? monthly[m].count : 1));
+		    }
+		  });
+		
+		  return { monthLabels, actualArr, planArr };
+		}
+		
+		// Function to format axis values
+		function formatMetricValue(value, metric) {
+		  if (["Revenue", "Spend", "P&L"].includes(metric)) {
+		    return "₹" + (value / 1000).toFixed(0) + "k";
+		  } else if (metric === "Conversion Rate") {
+		    return value.toFixed(1) + "%";
+		  } else if (metric === "ROAS") {
+		    return value.toFixed(2);
+		  } else {
+		    return value.toFixed(0);
+		  }
+		}
+		
+		// Function to draw chart
+		function drawPerformanceTrend(metric, duration) {
+		  const { monthLabels, actualArr, planArr } = getMonthlyMetrics(metric);
+		
+		  const displayCount = duration === 3 ? 3 : duration === 6 ? 6 : duration === 7 ? 7 : 12;
+		  const labels = monthLabels.slice(0, displayCount);
+		  const actualValues = actualArr.slice(0, displayCount);
+		  const planValues = planArr.slice(0, displayCount);
+		
+		  const ctx = document.getElementById("performanceChart").getContext("2d");
+		  if (performanceChartInstance) performanceChartInstance.destroy();
+		
+		  const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+		  gradient.addColorStop(0, "rgba(37,99,235,0.35)");
+		  gradient.addColorStop(1, "rgba(37,99,235,0.05)");
+		
+		  performanceChartInstance = new Chart(ctx, {
+		    type: "line",
+		    data: {
+		      labels,
+		      datasets: [
+		        {
+		          label: `Actual ${metric}`,
+		          data: actualValues,
+		          borderColor: "#2563eb",
+		          backgroundColor: gradient,
+		          fill: true,
+		          tension: 0.4,
+		          borderWidth: 2.2,
+		          pointRadius: 4,
+		          pointBackgroundColor: "#2563eb"
+		        },
+		        {
+		          label: `Planned ${metric}`,
+		          data: planValues,
+		          borderColor: "#93c5fd",
+		          borderDash: [5, 5],
+		          tension: 0.4,
+		          borderWidth: 1.8,
+		          pointRadius: 3,
+		          pointBackgroundColor: "#93c5fd"
+		        }
+		      ]
+		    },
+		    options: {
+		      responsive: true,
+		      maintainAspectRatio: false,
+		      plugins: {
+		        legend: {
+		          position: "bottom",
+		          labels: { usePointStyle: true, boxWidth: 8, padding: 15 }
+		        },
+		        tooltip: {
+		          backgroundColor: "#1e293b",
+		          titleColor: "#fff",
+		          bodyColor: "#f8fafc",
+		          callbacks: {
+		            label: function (context) {
+		              return `${context.dataset.label}: ${formatMetricValue(context.parsed.y, metric)}`;
+		            }
+		          }
+		        }
+		      },
+		      scales: {
+		        y: {
+		          ticks: {
+		            callback: val => formatMetricValue(val, metric),
+		            color: "#374151"
+		          },
+		          grid: { color: "#f3f4f6" }
+		        },
+		        x: {
+		          ticks: { color: "#6b7280" },
+		          grid: { display: false }
+		        }
+		      }
+		    }
+		  });
+		}
+		
+		// Initialize chart after data load
+		drawPerformanceTrend("Revenue", 7);
+		
+		// Add dropdown event listeners
+		document.getElementById("metricSelect").addEventListener("change", (e) => {
+		  const metric = e.target.value;
+		  const duration = parseInt(document.getElementById("durationSelect").value);
+		  drawPerformanceTrend(metric, duration);
+		});
+		document.getElementById("durationSelect").addEventListener("change", (e) => {
+		  const duration = parseInt(e.target.value);
+		  const metric = document.getElementById("metricSelect").value;
+		  drawPerformanceTrend(metric, duration);
+		});
+
 	</script>
 </body>
 </html>
