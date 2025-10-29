@@ -163,6 +163,31 @@
 		  </div>
 		</div>
 
+				<!-- ===== YEAR-TO-DATE PERFORMANCE CHART ===== -->
+		<div style="margin-top: 50px; padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+		  <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 16px;">Year-to-Date Performance</h3>
+		
+		  <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+		    <div>
+		      <label for="ytdMetricSelect" style="font-weight: 500; color: #374151;">Select KPI:</label>
+		      <select id="ytdMetricSelect" style="margin-left: 8px; padding: 5px 10px; border-radius: 6px; border: 1px solid #d1d5db;">
+		        <option>Revenue</option>
+		        <option>Leads</option>
+		        <option>Admissions</option>
+		        <option>Spend</option>
+		        <option>P&L</option>
+		        <option>CPL</option>
+		        <option>Conversion Rate</option>
+		        <option>ROAS</option>
+		      </select>
+		    </div>
+		  </div>
+		
+		  <div style="height: 400px;">
+		    <canvas id="ytdPerformanceChart"></canvas>
+		  </div>
+		</div>
+
 	</div>
 
 	<script>
@@ -805,6 +830,164 @@
 		  const metric = document.getElementById("metricSelect").value;
 		  drawPerformanceTrend(metric, duration);
 		});
+
+				// ====== YEAR-TO-DATE PERFORMANCE CHART (REAL DATA) ======
+		
+		let ytdChartInstance = null;
+		
+		// Helper to get YTD monthly data
+		function getYTDMonthlyMetrics(metricKey) {
+		  const monthly = {};
+		
+		  allData.forEach(row => {
+		    const month = row.month;
+		    if (!monthly[month]) {
+		      monthly[month] = { actual: 0, plan: 0, count: 0 };
+		    }
+		
+		    switch (metricKey) {
+		      case "Leads":
+		        monthly[month].actual += +row.leads.actual;
+		        monthly[month].plan += +row.leads.plan;
+		        break;
+		      case "Admissions":
+		        monthly[month].actual += +row.admissions.actual;
+		        monthly[month].plan += +row.admissions.plan;
+		        break;
+		      case "Revenue":
+		        monthly[month].actual += +row.revenue.actual;
+		        monthly[month].plan += +row.revenue.plan;
+		        break;
+		      case "Spend":
+		        monthly[month].actual += +row.spend.actual;
+		        monthly[month].plan += +row.spend.plan;
+		        break;
+		      case "P&L":
+		        monthly[month].actual += +row.pl.actual;
+		        monthly[month].plan += +row.pl.plan;
+		        break;
+		      case "CPL":
+		        monthly[month].actual += +row.leads.actual > 0 ? row.spend.actual / row.leads.actual : 0;
+		        monthly[month].plan += +row.leads.plan > 0 ? row.spend.plan / row.leads.plan : 0;
+		        break;
+		      case "Conversion Rate":
+		        monthly[month].actual += +row.leads.actual > 0 ? (row.admissions.actual / row.leads.actual) * 100 : 0;
+		        monthly[month].plan += +row.leads.plan > 0 ? (row.admissions.plan / row.leads.plan) * 100 : 0;
+		        break;
+		      case "ROAS":
+		        monthly[month].actual += +row.spend.actual > 0 ? (row.revenue.actual / row.spend.actual) : 0;
+		        monthly[month].plan += +row.spend.plan > 0 ? (row.revenue.plan / row.spend.plan) : 0;
+		        break;
+		    }
+		
+		    monthly[month].count++;
+		  });
+		
+		  const monthsOrder = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+		  const actualArr = [];
+		  const planArr = [];
+		  const monthLabels = [];
+		
+		  monthsOrder.forEach(m => {
+		    if (monthly[m]) {
+		      monthLabels.push(m);
+		      const divisor = ["CPL","Conversion Rate","ROAS"].includes(metricKey) ? monthly[m].count : 1;
+		      actualArr.push(monthly[m].actual / divisor);
+		      planArr.push(monthly[m].plan / divisor);
+		    }
+		  });
+		
+		  return { monthLabels, actualArr, planArr };
+		}
+		
+		// Function to draw YTD chart
+		function drawYTDPerformance(metric) {
+		  const { monthLabels, actualArr, planArr } = getYTDMonthlyMetrics(metric);
+		
+		  const ctx = document.getElementById("ytdPerformanceChart").getContext("2d");
+		  if (ytdChartInstance) ytdChartInstance.destroy();
+		
+		  ytdChartInstance = new Chart(ctx, {
+		    data: {
+		      labels: monthLabels,
+		      datasets: [
+		        {
+		          type: "bar",
+		          label: "Actual",
+		          data: actualArr,
+		          backgroundColor: "#3b82f6",
+		          borderRadius: 6,
+		          barThickness: 20
+		        },
+		        {
+		          type: "bar",
+		          label: "Planned",
+		          data: planArr,
+		          backgroundColor: "#93c5fd",
+		          borderRadius: 6,
+		          barThickness: 20
+		        },
+		        {
+		          type: "line",
+		          label: "Actual Trend",
+		          data: actualArr,
+		          borderColor: "#10b981",
+		          tension: 0.4,
+		          fill: false,
+		          pointRadius: 4,
+		          pointBackgroundColor: "#10b981",
+		          borderWidth: 2
+		        }
+		      ]
+		    },
+		    options: {
+		      responsive: true,
+		      maintainAspectRatio: false,
+		      interaction: { mode: "index", intersect: false },
+		      plugins: {
+		        legend: {
+		          position: "bottom",
+		          labels: { usePointStyle: true, boxWidth: 8, padding: 15 }
+		        },
+		        tooltip: {
+		          backgroundColor: "#1e293b",
+		          titleColor: "#fff",
+		          bodyColor: "#f8fafc",
+		          callbacks: {
+		            label: function (context) {
+		              const label = context.dataset.label || "";
+		              return `${label}: ${formatMetricValue(context.parsed.y, metric)}`;
+		            }
+		          }
+		        }
+		      },
+		      scales: {
+		        y: {
+		          beginAtZero: true,
+		          ticks: {
+		            callback: val => formatMetricValue(val, metric),
+		            color: "#374151"
+		          },
+		          grid: { color: "#f3f4f6" }
+		        },
+		        x: {
+		          ticks: { color: "#6b7280" },
+		          grid: { display: false }
+		        }
+		      }
+		    }
+		  });
+		}
+		
+		// Initialize on page load
+		drawYTDPerformance("Revenue");
+		
+		// Add event listener for dropdown
+		document.getElementById("ytdMetricSelect").addEventListener("change", (e) => {
+		  const metric = e.target.value;
+		  drawYTDPerformance(metric);
+		});
+
 
 	</script>
 </body>
