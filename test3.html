@@ -646,8 +646,8 @@
 		
 			html += `<tr class="total-row">
 				<td>Total</td>
-				<td>${createCell(totals.leads)}</td>
-				<td>${createCell(totals.admissions)}</td>
+				<td>${createCell(totals.leads, 'integer')}</td>
+				<td>${createCell(totals.admissions, 'integer')}</td>
 				<td>${createCell(totals.spend, 'currency')}</td>
 				<td>${createCell(totals.revenue, 'currency')}</td>
 				<td>${createCell(totals.cpl, 'currency')}</td>
@@ -719,6 +719,9 @@
 		  } else if (format === 'percentage') {
 		    actualDisplay = formattedActual + '%';
 		    planDisplay = formattedPlan + '%';
+		  } else if (format === 'integer') {
+		    actualDisplay =  data.actual.toLocaleString('en-IN');
+		    planDisplay = data.plan.toLocaleString('en-IN');
 		  } else {
 		    actualDisplay = formattedActual;
 		    planDisplay = formattedPlan;
