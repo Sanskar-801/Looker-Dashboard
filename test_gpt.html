@@ -549,8 +549,8 @@
 				let actualDisplay, planDisplay;
 
 				if (kpi.format === 'currency') {
-					actualDisplay = '₹' + Math.round(actual/1000) + 'k';
-					planDisplay = '₹' + Math.round(plan/1000) + 'k';
+					actualDisplay = '₹' + value.toFixed(1);
+					planDisplay = '₹' + value.toFixed(1);
 				} else if (kpi.format === 'percentage') {
 					actualDisplay = actual.toFixed(1) + '%';
 					planDisplay = plan.toFixed(1) + '%';
@@ -624,33 +624,35 @@
 		}
 
 		function createCell(data, format = 'number') {
-			const plan = Number((data.plan || 0));
-			const actual = Number((data.actual || 0));
-			const variance = plan > 0 ? ((actual - plan) / plan) * 100 : 0;
-			const varClass = variance > 0 ? 'positive' : variance < 0 ? 'negative' : 'neutral';
-			const arrow = variance > 0 ? '↗ +' : variance < 0 ? '↘ ' : '↔ ';
-
-			let actualDisplay, planDisplay;
-			if (format === 'currency') {
-				actualDisplay = '₹' + Math.round(actual/1000) + 'k';
-				planDisplay = '₹' + Math.round(plan/1000) + 'k';
-			} else if (format === 'decimal') {
-				actualDisplay = actual.toFixed(1);
-				planDisplay = plan.toFixed(1);
-			} else if (format === 'percentage') {
-				actualDisplay = actual.toFixed(1) + '%';
-				planDisplay = plan.toFixed(1) + '%';
-			} else {
-				actualDisplay = Math.round(actual).toLocaleString();
-				planDisplay = Math.round(plan).toLocaleString();
-			}
-
-			return `<div class="metric-cell">
-				<span class="actual-value">${actualDisplay}</span>
-				<span class="plan-value">Plan: ${planDisplay}</span>
-				<span class="variance ${varClass}">${arrow}${Math.abs(variance).toFixed(1)}%</span>
-			</div>`;
+		  const variance = data.plan > 0 ? ((data.actual - data.plan) / data.plan) * 100 : 0;
+		  const varClass = variance > 0 ? 'positive' : variance < 0 ? 'negative' : 'neutral';
+		  const arrow = variance > 0 ? '↗ +' : variance < 0 ? '↘ ' : '↔ ';
+		
+		  let actualDisplay, planDisplay;
+		
+		  if (format === 'currency') {
+		    actualDisplay = '₹' + data.actual.toFixed(1);
+		    planDisplay = '₹' + data.plan.toFixed(1);
+		  } else if (format === 'decimal') {
+		    actualDisplay = data.actual.toFixed(1);
+		    planDisplay = data.plan.toFixed(1);
+		  } else if (format === 'percentage') {
+		    actualDisplay = data.actual.toFixed(1) + '%';
+		    planDisplay = data.plan.toFixed(1) + '%';
+		  } else {
+		    actualDisplay = data.actual.toFixed(1);
+		    planDisplay = data.plan.toFixed(1);
+		  }
+		
+		  return `
+		    <div class="metric-cell">
+		      <span class="actual-value">${actualDisplay}</span>
+		      <span class="plan-value">Plan: ${planDisplay}</span>
+		      <span class="variance ${varClass}">${arrow}${Math.abs(variance).toFixed(1)}%</span>
+		    </div>
+		  `;
 		}
+		
 
 		// Initialize on window load
 		window.onload = init;
