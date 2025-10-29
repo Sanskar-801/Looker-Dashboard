@@ -562,8 +562,8 @@
 				let actualDisplay, planDisplay;
 
 				if (kpi.format === 'currency') {
-					const formattedActual = actual.toLocaleString('en-IN');
-					const formattedPlan = plan.toLocaleString('en-IN');
+					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
+					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
 					actualDisplay = '₹' + formattedActual;
 					planDisplay = '₹' + formattedPlan;
 				} else if (kpi.format === 'percentage') {
@@ -711,8 +711,14 @@
 		  });
 		
 		  if (format === 'currency') {
-		    actualDisplay = '₹' + data.actual.toLocaleString('en-IN');
-		    planDisplay = '₹' + data.plan.toLocaleString('en-IN');
+		    actualDisplay = '₹' + data.actual.toLocaleString('en-IN', {
+		    minimumFractionDigits: 0,
+		    maximumFractionDigits: 0
+		  });
+		    planDisplay = '₹' + data.plan.toLocaleString('en-IN', {
+		    minimumFractionDigits: 0,
+		    maximumFractionDigits: 0
+		  });
 		  } else if (format === 'decimal') {
 		    actualDisplay = formattedActual;
 		    planDisplay = formattedPlan;
@@ -720,8 +726,14 @@
 		    actualDisplay = formattedActual + '%';
 		    planDisplay = formattedPlan + '%';
 		  } else if (format === 'integer') {
-		    actualDisplay =  data.actual.toLocaleString('en-IN');
-		    planDisplay = data.plan.toLocaleString('en-IN');
+		    actualDisplay =  data.actual.toLocaleString('en-IN', {
+		    minimumFractionDigits: 0,
+		    maximumFractionDigits: 0
+		  });
+		    planDisplay = data.plan.toLocaleString('en-IN', {
+		    minimumFractionDigits: 0,
+		    maximumFractionDigits: 0
+		  });
 		  } else {
 		    actualDisplay = formattedActual;
 		    planDisplay = formattedPlan;
