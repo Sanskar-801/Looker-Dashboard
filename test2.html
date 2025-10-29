@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>University Performance Dashboard</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+			background: #f5f5f5;
+			padding: 20px;
+		}
+
+		.dashboard-container {
+			max-width: 1600px;
+			margin: 0 auto;
+		}
+
+		.filters-section {
+			background: white;
+			border-radius: 8px;
+			padding: 20px;
+			margin-bottom: 20px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+
+		.filters-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 15px;
+			align-items: end;
+		}
+
+		.filter-group {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.filter-label {
+			font-size: 12px;
+			font-weight: 600;
+			color: #495057;
+			margin-bottom: 6px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		select {
+			padding: 10px 12px;
+			border: 1px solid #ced4da;
+			border-radius: 6px;
+			font-size: 14px;
+			color: #495057;
+			background-color: white;
+			cursor: pointer;
+			transition: border-color 0.2s;
+		}
+
+		select:hover {
+			border-color: #80bdff;
+		}
+
+		select:focus {
+			outline: none;
+			border-color: #007bff;
+			box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+		}
+
+		.apply-button {
+			padding: 10px 24px;
+			background: #007bff;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: background 0.2s;
+		}
+
+		.apply-button:hover {
+			background: #0056b3;
+		}
+
+		.apply-button:active {
+			transform: scale(0.98);
+		}
+
+		.kpi-section {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+			margin-bottom: 20px;
+		}
+
+		.kpi-card {
+			background: white;
+			border-radius: 8px;
+			padding: 20px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+			transition: transform 0.2s;
+		}
+
+		.kpi-card:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		}
+
+		.kpi-card.highlight {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+		}
+
+		.kpi-card.highlight .kpi-label,
+		.kpi-card.highlight .kpi-plan {
+			color: rgba(255, 255, 255, 0.9);
+		}
+
+		.kpi-label {
+			font-size: 12px;
+			font-weight: 600;
+			color: #6c757d;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			margin-bottom: 10px;
+		}
+
+		.kpi-value {
+			font-size: 32px;
+			font-weight: 700;
+			color: #212529;
+			margin-bottom: 5px;
+		}
+
+		.kpi-card.highlight .kpi-value {
+			color: white;
+		}
+
+		.kpi-plan {
+			font-size: 14px;
+			color: #6c757d;
+			margin-bottom: 10px;
+		}
+
+		.bullet-chart {
+			height: 8px;
+			background: #e9ecef;
+			border-radius: 4px;
+			overflow: hidden;
+			margin-bottom: 5px;
+		}
+
+		.bullet-fill {
+			height: 100%;
+			transition: width 0.5s ease;
+			border-radius: 4px;
+		}
+
+		.bullet-fill.green {
+			background: #00C853;
+		}
+
+		.bullet-fill.red {
+			background: #FF5252;
+		}
+
+		.bullet-fill.grey {
+			background: #9E9E9E;
+		}
+
+		.kpi-percentage {
+			font-size: 12px;
+			font-weight: 600;
+		}
+
+		.kpi-percentage.green {
+			color: #00C853;
+		}
+
+		.kpi-percentage.red {
+			color: #FF5252;
+		}
+
+		.kpi-percentage.grey {
+			color: #9E9E9E;
+		}
+
+		.loading {
+			text-align: center;
+			padding: 40px;
+			color: #6c757d;
+		}
+
+		.error {
+			background: #f8d7da;
+			color: #721c24;
+			padding: 15px;
+			border-radius: 6px;
+			margin-bottom: 20px;
+		}
+		
+		.table-container {
+			background: white;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+			overflow-x: auto;
+		}
+		
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			min-width: 1100px;
+		}
+		
+		thead {
+			background: #f8f9fa;
+			border-bottom: 2px solid #dee2e6;
+			position: sticky;
+			top: 0;
+			z-index: 10;
+		}
+		
+		th {
+			padding: 12px 16px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 13px;
+			color: #495057;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		
+		th:first-child {
+			padding-left: 24px;
+		}
+		
+		tbody tr {
+			border-bottom: 1px solid #e9ecef;
+			transition: background-color 0.2s;
+		}
+		
+		tbody tr:hover {
+			background-color: #f8f9fa;
+		}
+		
+		tbody tr:last-child {
+			border-bottom: none;
+		}
+		
+		td {
+			padding: 16px;
+			vertical-align: middle;
+		}
+		
+		td:first-child {
+			padding-left: 24px;
+			font-weight: 500;
+			color: #212529;
+		}
+		
+		.metric-cell {
+			line-height: 1.6;
+		}
+		
+		.actual-value {
+			font-size: 18px;
+			font-weight: 600;
+			color: #212529;
+			display: block;
+			margin-bottom: 4px;
+		}
+		
+		.plan-value {
+			font-size: 11px;
+			color: #6c757d;
+			display: block;
+			margin-bottom: 4px;
+		}
+		
+		.variance {
+			font-size: 12px;
+			font-weight: 500;
+			display: block;
+		}
+		
+		.variance.positive { color: #00C853; }
+		.variance.negative { color: #FF5252; }
+		.variance.neutral { color: #9E9E9E; }
+		
+		.roas-cell {
+			background-color: rgba(0, 0, 0, 0.03);
+			font-weight: 700;
+			text-align: center;
+		}
+		.roas-cell.green { background-color: rgba(16, 185, 129, 0.60); color: #064E3B; }
+		.roas-cell.amber { background-color: rgba(245, 158, 11, 0.60); color: #7A2E0E; }
+		.roas-cell.red   { background-color: rgba(239, 68, 68, 0.60);  color: #7F1D1D; }
+		.roas-cell .actual-value,
+		.roas-cell .plan-value,
+		.roas-cell .variance { color: inherit; }
+		
+		.total-row {
+			background: #f8f9fa;
+			font-weight: 600;
+			border-top: 2px solid #dee2e6;
+		}
+		
+		.total-row td { padding: 18px 16px; }
+
+		.info-banner {
+			background: #d1ecf1;
+			color: #0c5460;
+			padding: 12px 20px;
+			border-radius: 6px;
+			margin-bottom: 20px;
+			font-size: 14px;
+		}
+		
+		@media (max-width: 768px) {
+			body { padding: 10px; }
+			.kpi-section { grid-template-columns: repeat(2, 1fr); }
+			th, td { padding: 10px 8px; font-size: 12px; }
+			.actual-value { font-size: 16px; }
+			.filters-grid { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<div class="dashboard-container">
+		<div class="filters-section">
+			<div class="filters-grid">
+				<div class="filter-group">
+					<label class="filter-label">Duration Type</label>
+					<select id="durationType">
+						<option value="month">Monthly</option>
+						<option value="quarter">Quarterly</option>
+						<option value="year">Yearly</option>
+						<option value="all">All Time</option>
+					</select>
+				</div>
+				
+				<div class="filter-group" id="monthFilter">
+					<label class="filter-label">Month & Year</label>
+					<select id="monthYear">
+						<option value="">All Months</option>
+					</select>
+				</div>
+
+				<div class="filter-group" id="quarterFilter" style="display:none;">
+					<label class="filter-label">Quarter</label>
+					<select id="quarter">
+						<option value="">All Quarters</option>
+						<option value="Q1">Q1 (Jan-Mar)</option>
+						<option value="Q2">Q2 (Apr-Jun)</option>
+						<option value="Q3">Q3 (Jul-Sep)</option>
+						<option value="Q4">Q4 (Oct-Dec)</option>
+					</select>
+				</div>
+				
+				<div class="filter-group" id="yearFilter" style="display:none;">
+					<label class="filter-label">Year</label>
+					<select id="year">
+						<option value="">All Years</option>
+					</select>
+				</div>
+
+				<div class="filter-group">
+					<label class="filter-label">Cluster</label>
+					<select id="cluster">
+						<option value="">All Clusters</option>
+					</select>
+				</div>
+
+				<div class="filter-group">
+					<button class="apply-button" onclick="applyFilters()">Apply Filters</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="kpi-section" id="kpiSection"></div>
+		<div class="info-banner" id="infoBanner" style="display:none;"></div>
+		<div id="errorMessage" class="error" style="display:none;"></div>
+		<div class="table-container" id="tableContainer">
+			<div class="loading">Initializing...</div>
+		</div>
+	</div>
+
+	<script>
+		// ============================================
+		// CONFIGURATION - SET YOUR GOOGLE SHEET HERE
+		// ============================================
+		
+		const USE_SAMPLE_DATA = false; // Set to FALSE to use Google Sheet
+		const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTEVY1wjKKOySULMlKauINBg0w6EFeqptOkg0JTEotpZljSFI-XSLiVyDqBrV1p70DKS9_PJ5y39kjq/pub?output=csv';
+		
+		// Alternative: Use Google Sheets API (for private sheets)
+		const USE_API = false; // Set to TRUE if using API method
+		const API_KEY = 'YOUR_API_KEY_HERE';
+		const SHEET_ID = 'YOUR_SHEET_ID_HERE';
+		const SHEET_NAME = 'Sheet1';
+		
+		// ============================================
+
+		// Sample data
+		const sampleData = [
+			{ university: 'AMET', cluster: 'Cluster A', monthYear: 'Apr 2024', leads: {actual: 1850, plan: 1700}, admissions: {actual: 295, plan: 272}, revenue: {actual: 885000, plan: 816000}, pl: {actual: 266000, plan: 245000}, spend: {actual: 245000, plan: 255000} },
+			{ university: 'AMET', cluster: 'Cluster A', monthYear: 'May 2024', leads: {actual: 920, plan: 850}, admissions: {actual: 147, plan: 136}, revenue: {actual: 588000, plan: 544000}, pl: {actual: 176000, plan: 163000}, spend: {actual: 142000, plan: 145000} },
+			{ university: 'AMET', cluster: 'Cluster A', monthYear: 'Jun 2024', leads: {actual: 1120, plan: 1050}, admissions: {actual: 178, plan: 168}, revenue: {actual: 445000, plan: 420000}, pl: {actual: 134000, plan: 126000}, spend: {actual: 125000, plan: 130000} },
+			{ university: 'AMET', cluster: 'Cluster A', monthYear: 'Jul 2024', leads: {actual: 800, plan: 750}, admissions: {actual: 130, plan: 120}, revenue: {actual: 400000, plan: 380000}, pl: {actual: 120000, plan: 110000}, spend: {actual: 130000, plan: 125000} },
+			{ university: 'University B', cluster: 'Cluster B', monthYear: 'Apr 2024', leads: {actual: 890, plan: 800}, admissions: {actual: 142, plan: 128}, revenue: {actual: 355000, plan: 320000}, pl: {actual: 107000, plan: 96000}, spend: {actual: 118000, plan: 120000} },
+			{ university: 'University B', cluster: 'Cluster B', monthYear: 'May 2024', leads: {actual: 670, plan: 600}, admissions: {actual: 110, plan: 96}, revenue: {actual: 337000, plan: 300000}, pl: {actual: 101000, plan: 90000}, spend: {actual: 115000, plan: 100000} },
+			{ university: 'University B', cluster: 'Cluster B', monthYear: 'Jun 2024', leads: {actual: 720, plan: 680}, admissions: {actual: 115, plan: 108}, revenue: {actual: 360000, plan: 340000}, pl: {actual: 110000, plan: 102000}, spend: {actual: 120000, plan: 118000} },
+			{ university: 'University C', cluster: 'Cluster C', monthYear: 'Apr 2024', leads: {actual: 750, plan: 700}, admissions: {actual: 120, plan: 110}, revenue: {actual: 400000, plan: 380000}, pl: {actual: 150000, plan: 140000}, spend: {actual: 130000, plan: 135000} },
+			{ university: 'University C', cluster: 'Cluster C', monthYear: 'May 2024', leads: {actual: 680, plan: 650}, admissions: {actual: 110, plan: 105}, revenue: {actual: 360000, plan: 340000}, pl: {actual: 130000, plan: 125000}, spend: {actual: 120000, plan: 125000} },
+		];
+
+		let allData = [];
+		let filteredData = [];
+		let totals = {};
+
+		function init() {
+			console.log('Initializing dashboard...');
+			
+			// Parse month-year info
+			allData = sampleData.map(row => {
+				const [month, year] = row.monthYear.split(' ');
+				const monthMap = {'Jan':0,'Feb':1,'Mar':2,'Apr':3,'May':4,'Jun':5,'Jul':6,'Aug':7,'Sep':8,'Oct':9,'Nov':10,'Dec':11};
+				return {
+					...row,
+					month,
+					year: parseInt(year),
+					monthIndex: monthMap[month] || 0
+				};
+			});
+
+			console.log('Data loaded:', allData.length, 'rows');
+			
+			// Setup event listeners
+			document.getElementById('durationType').onchange = function() {
+				const type = this.value;
+				document.getElementById('monthFilter').style.display = type === 'month' ? 'block' : 'none';
+				document.getElementById('quarterFilter').style.display = type === 'quarter' ? 'block' : 'none';
+				document.getElementById('yearFilter').style.display = (type === 'quarter' || type === 'year') ? 'block' : 'none';
+			};
+
+			populateFilters();
+			applyFilters();
+		}
+
+		function populateFilters() {
+			// Month-Year dropdown
+			const months = [...new Set(allData.map(r => r.monthYear))];
+			const monthSelect = document.getElementById('monthYear');
+			months.forEach(m => {
+				const opt = document.createElement('option');
+				opt.value = m;
+				opt.textContent = m;
+				monthSelect.appendChild(opt);
+			});
+
+			// Year dropdown
+			const years = [...new Set(allData.map(r => r.year))];
+			const yearSelect = document.getElementById('year');
+			years.forEach(y => {
+				const opt = document.createElement('option');
+				opt.value = y;
+				opt.textContent = y;
+				yearSelect.appendChild(opt);
+			});
+
+			// Cluster dropdown
+			const clusters = [...new Set(allData.map(r => r.cluster))];
+			const clusterSelect = document.getElementById('cluster');
+			clusters.forEach(c => {
+				const opt = document.createElement('option');
+				opt.value = c;
+				opt.textContent = c;
+				clusterSelect.appendChild(opt);
+			});
+
+			console.log('Filters populated');
+		}
+
+		function getQuarter(monthIndex) {
+			if (monthIndex <= 2) return 'Q1';
+			if (monthIndex <= 5) return 'Q2';
+			if (monthIndex <= 8) return 'Q3';
+			return 'Q4';
+		}
+
+		function applyFilters() {
+			const durationType = document.getElementById('durationType').value;
+			const selectedMonth = document.getElementById('monthYear').value;
+			const selectedQuarter = document.getElementById('quarter').value;
+			const selectedYear = document.getElementById('year').value;
+			const selectedCluster = document.getElementById('cluster').value;
+
+			let filtered = allData.filter(row => {
+				if (selectedCluster && row.cluster !== selectedCluster) return false;
+				if (durationType === 'month' && selectedMonth && row.monthYear !== selectedMonth) return false;
+				if (durationType === 'quarter') {
+					if (selectedYear && row.year != selectedYear) return false;
+					if (selectedQuarter && getQuarter(row.monthIndex) !== selectedQuarter) return false;
+				}
+				if (durationType === 'year' && selectedYear && row.year != selectedYear) return false;
+				return true;
+			});
+
+			// Aggregate by university
+			const agg = {};
+			filtered.forEach(row => {
+				if (!agg[row.university]) {
+					agg[row.university] = {
+						university: row.university,
+						leads: {actual: 0, plan: 0},
+						admissions: {actual: 0, plan: 0},
+						revenue: {actual: 0, plan: 0},
+						pl: {actual: 0, plan: 0},
+						spend: {actual: 0, plan: 0}
+					};
+				}
+				const a = agg[row.university];
+				a.leads.actual += row.leads.actual;
+				a.leads.plan += row.leads.plan;
+				a.admissions.actual += row.admissions.actual;
+				a.admissions.plan += row.admissions.plan;
+				a.revenue.actual += row.revenue.actual;
+				a.revenue.plan += row.revenue.plan;
+				a.pl.actual += row.pl.actual;
+				a.pl.plan += row.pl.plan;
+				a.spend.actual += row.spend.actual;
+				a.spend.plan += row.spend.plan;
+			});
+
+			// Calculate CPL and ROAS per university
+			filteredData = Object.values(agg).map(row => {
+				row.cpl = {
+					actual: row.leads.actual > 0 ? row.spend.actual / row.leads.actual : 0,
+					plan: row.leads.plan > 0 ? row.spend.plan / row.leads.plan : 0
+				};
+				row.roas = {
+					actual: row.spend.actual > 0 ? row.revenue.actual / row.spend.actual : 0,
+					plan: row.spend.plan > 0 ? row.revenue.plan / row.spend.plan : 0
+				};
+				return row;
+			});
+
+			// Calculate totals
+			totals = {
+				leads: {actual: 0, plan: 0},
+				admissions: {actual: 0, plan: 0},
+				spend: {actual: 0, plan: 0},
+				revenue: {actual: 0, plan: 0},
+				pl: {actual: 0, plan: 0}
+			};
+
+			filteredData.forEach(row => {
+				totals.leads.actual += row.leads.actual;
+				totals.leads.plan += row.leads.plan;
+				totals.admissions.actual += row.admissions.actual;
+				totals.admissions.plan += row.admissions.plan;
+				totals.spend.actual += row.spend.actual;
+				totals.spend.plan += row.spend.plan;
+				totals.revenue.actual += row.revenue.actual;
+				totals.revenue.plan += row.revenue.plan;
+				totals.pl.actual += row.pl.actual;
+				totals.pl.plan += row.pl.plan;
+			});
+
+			totals.cpl = {
+				actual: totals.leads.actual > 0 ? totals.spend.actual / totals.leads.actual : 0,
+				plan: totals.leads.plan > 0 ? totals.spend.plan / totals.leads.plan : 0
+			};
+			totals.roas = {
+				actual: totals.spend.actual > 0 ? totals.revenue.actual / totals.spend.actual : 0,
+				plan: totals.spend.plan > 0 ? totals.revenue.plan / totals.spend.plan : 0
+			};
+			totals.convRate = {
+				actual: totals.leads.actual > 0 ? (totals.admissions.actual / totals.leads.actual) * 100 : 0,
+				plan: totals.leads.plan > 0 ? (totals.admissions.plan / totals.leads.plan) * 100 : 0
+			};
+
+			renderKPIs();
+			renderTable();
+		}
+
+		function renderKPIs() {
+			const kpis = [
+				{ label: 'Leads', key: 'leads', format: 'number' },
+				{ label: 'Spend', key: 'spend', format: 'currency' },
+				{ label: 'CPL', key: 'cpl', format: 'currency' },
+				{ label: 'P&L', key: 'pl', format: 'currency' },
+				{ label: 'Admissions', key: 'admissions', format: 'number' },
+				{ label: 'Revenue', key: 'revenue', format: 'currency' },
+				{ label: 'Conversion Rate', key: 'convRate', format: 'percentage' },
+				{ label: 'ROAS', key: 'roas', format: 'decimal', highlight: true }
+			];
+
+			let html = '';
+			kpis.forEach(kpi => {
+				const actual = totals[kpi.key].actual;
+				const plan = totals[kpi.key].plan;
+				const achievement = plan > 0 ? (actual / plan) * 100 : 0;
+				const bulletWidth = Math.min(achievement, 100);
+				
+				let bulletClass = actual > plan ? 'green' : actual < plan ? 'red' : 'grey';
+				let actualDisplay, planDisplay;
+				
+				if (kpi.format === 'currency') {
+					actualDisplay = '₹' + Math.round(actual/1000) + 'k';
+					planDisplay = '₹' + Math.round(plan/1000) + 'k';
+				} else if (kpi.format === 'percentage') {
+					actualDisplay = actual.toFixed(1) + '%';
+					planDisplay = plan.toFixed(1) + '%';
+				} else if (kpi.format === 'decimal') {
+					actualDisplay = actual.toFixed(1);
+					planDisplay = plan.toFixed(1);
+				} else {
+					actualDisplay = Math.round(actual).toLocaleString();
+					planDisplay = Math.round(plan).toLocaleString();
+				}
+
+				html += `
+					<div class="kpi-card ${kpi.highlight ? 'highlight' : ''}">
+						<div class="kpi-label">${kpi.label}</div>
+						<div class="kpi-value">${actualDisplay}</div>
+						<div class="kpi-plan">Plan: ${planDisplay}</div>
+						<div class="bullet-chart">
+							<div class="bullet-fill ${bulletClass}" style="width: ${bulletWidth}%"></div>
+						</div>
+						<div class="kpi-percentage ${bulletClass}">${achievement.toFixed(1)}% achieved</div>
+					</div>
+				`;
+			});
+
+			document.getElementById('kpiSection').innerHTML = html;
+		}
+
+		function renderTable() {
+			if (filteredData.length === 0) {
+				document.getElementById('tableContainer').innerHTML = '<div class="loading">No data for selected filters</div>';
+				return;
+			}
+
+			let html = '<table><thead><tr><th>University</th><th>Leads</th><th>Admissions</th><th>Spend</th><th>Revenue</th><th>CPL</th><th>P&L</th><th>ROAS</th></tr></thead><tbody>';
+			
+			filteredData.forEach(row => {
+				const roasClass = row.roas.actual >= row.roas.plan ? 'green' : (row.roas.plan - row.roas.actual) / row.roas.plan <= 0.2 ? 'amber' : 'red';
+				
+				html += `<tr>
+					<td>${row.university}</td>
+					<td>${createCell(row.leads)}</td>
+					<td>${createCell(row.admissions)}</td>
+					<td>${createCell(row.spend, 'currency')}</td>
+					<td>${createCell(row.revenue, 'currency')}</td>
+					<td>${createCell(row.cpl, 'currency')}</td>
+					<td>${createCell(row.pl, 'currency')}</td>
+					<td class="roas-cell ${roasClass}">${createCell(row.roas, 'decimal')}</td>
+				</tr>`;
+			});
+
+			const totalRoasClass = totals.roas.actual >= totals.roas.plan ? 'green' : (totals.roas.plan - totals.roas.actual) / totals.roas.plan <= 0.2 ? 'amber' : 'red';
+			
+			html += `<tr class="total-row">
+				<td>Total</td>
+				<td>${createCell(totals.leads)}</td>
+				<td>${createCell(totals.admissions)}</td>
+				<td>${createCell(totals.spend, 'currency')}</td>
+				<td>${createCell(totals.revenue, 'currency')}</td>
+				<td>${createCell(totals.cpl, 'currency')}</td>
+				<td>${createCell(totals.pl, 'currency')}</td>
+				<td class="roas-cell ${totalRoasClass}">${createCell(totals.roas, 'decimal')}</td>
+			</tr></tbody></table>`;
+
+			document.getElementById('tableContainer').innerHTML = html;
+		}
+
+		function createCell(data, format = 'number') {
+			const variance = data.plan > 0 ? ((data.actual - data.plan) / data.plan) * 100 : 0;
+			const varClass = variance > 0 ? 'positive' : variance < 0 ? 'negative' : 'neutral';
+			const arrow = variance > 0 ? '↗ +' : variance < 0 ? '↘ ' : '↔ ';
+			
+			let actualDisplay, planDisplay;
+			if (format === 'currency') {
+				actualDisplay = '₹' + Math.round(data.actual/1000) + 'k';
+				planDisplay = '₹' + Math.round(data.plan/1000) + 'k';
+			} else if (format === 'decimal') {
+				actualDisplay = data.actual.toFixed(1);
+				planDisplay = data.plan.toFixed(1);
+			} else {
+				actualDisplay = Math.round(data.actual).toLocaleString();
+				planDisplay = Math.round(data.plan).toLocaleString();
+			}
+
+			return `<div class="metric-cell">
+				<span class="actual-value">${actualDisplay}</span>
+				<span class="plan-value">Plan: ${planDisplay}</span>
+				<span class="variance ${varClass}">${arrow}${Math.abs(variance).toFixed(1)}%</span>
+			</div>`;
+		}
+
+		// Initialize
+		window.onload = init;
+	</script>
+</body>
+</html>
