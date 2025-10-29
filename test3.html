@@ -629,8 +629,8 @@
 		
 				html += `<tr>
 					<td>${row.university || '-'}</td>
-					<td>${createCell(row.leads)}</td>
-					<td>${createCell(row.admissions)}</td>
+					<td>${createCell(row.leads, 'integer')}</td>
+					<td>${createCell(row.admissions, 'integer')}</td>
 					<td>${createCell(row.spend, 'currency')}</td>
 					<td>${createCell(row.revenue, 'currency')}</td>
 					<td>${createCell(row.cpl, 'currency')}</td>
