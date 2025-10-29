@@ -562,18 +562,25 @@
 				let actualDisplay, planDisplay;
 
 				if (kpi.format === 'currency') {
-					actualDisplay = '₹' + actual.toFixed(1);
-					planDisplay = '₹' + plan.toFixed(1);
+					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					actualDisplay = '₹' + formattedActual;
+					planDisplay = '₹' + formattedPlan;
 				} else if (kpi.format === 'percentage') {
-					actualDisplay = actual.toFixed(1) + '%';
-					planDisplay = plan.toFixed(1) + '%';
+					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					actualDisplay = formattedActual + '%';
+					planDisplay = formattedPlan + '%';
 				} else if (kpi.format === 'decimal') {
-					actualDisplay = actual.toFixed(1);
-					planDisplay = plan.toFixed(1);
+					const formattedActual = actual.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					const formattedPlan = plan.toLocaleString('en-IN', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+					actualDisplay = formattedActual;
+					planDisplay = formattedPlan;
 				} else {
-					actualDisplay = Math.round(actual).toLocaleString();
-					planDisplay = Math.round(plan).toLocaleString();
+					actualDisplay = Math.round(actual).toLocaleString('en-IN');
+					planDisplay = Math.round(plan).toLocaleString('en-IN');
 				}
+
 
 				html += `
 					<div class="kpi-card ${kpi.highlight ? 'highlight' : ''}">
@@ -693,18 +700,28 @@
 		
 		  let actualDisplay, planDisplay;
 		
+		  // Use Indian-style comma formatting with 1 decimal
+		  const formattedActual = data.actual.toLocaleString('en-IN', {
+		    minimumFractionDigits: 1,
+		    maximumFractionDigits: 1
+		  });
+		  const formattedPlan = data.plan.toLocaleString('en-IN', {
+		    minimumFractionDigits: 1,
+		    maximumFractionDigits: 1
+		  });
+		
 		  if (format === 'currency') {
-		    actualDisplay = '₹' + data.actual.toFixed(1);
-		    planDisplay = '₹' + data.plan.toFixed(1);
+		    actualDisplay = '₹' + formattedActual;
+		    planDisplay = '₹' + formattedPlan;
 		  } else if (format === 'decimal') {
-		    actualDisplay = data.actual.toFixed(1);
-		    planDisplay = data.plan.toFixed(1);
+		    actualDisplay = formattedActual;
+		    planDisplay = formattedPlan;
 		  } else if (format === 'percentage') {
-		    actualDisplay = data.actual.toFixed(1) + '%';
-		    planDisplay = data.plan.toFixed(1) + '%';
+		    actualDisplay = formattedActual + '%';
+		    planDisplay = formattedPlan + '%';
 		  } else {
-		    actualDisplay = data.actual.toFixed(1);
-		    planDisplay = data.plan.toFixed(1);
+		    actualDisplay = formattedActual;
+		    planDisplay = formattedPlan;
 		  }
 		
 		  return `
@@ -715,6 +732,7 @@
 		    </div>
 		  `;
 		}
+
 		
 
 		// Initialize on window load
