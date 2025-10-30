@@ -760,8 +760,7 @@
 		// Initialize on window load
 		window.onload = init;
 
-				// ====== PERFORMANCE TREND CHART (REAL DATA) ======
-		
+		// ====== PERFORMANCE TREND CHART (REAL DATA) ======
 		let performanceChartInstance = null;
 		
 		// Helper to get filtered monthly data from allData
@@ -785,7 +784,6 @@
 		      };
 		    }
 		
-		    // Aggregate base fields
 		    monthly[month].spendActual += +row.spend.actual;
 		    monthly[month].spendPlan += +row.spend.plan;
 		    monthly[month].leadsActual += +row.leads.actual;
@@ -831,7 +829,6 @@
 		    }
 		  });
 		
-		  // Build arrays for chart
 		  const monthsOrder = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 		  const actualArr = [];
 		  const planArr = [];
@@ -847,18 +844,17 @@
 		
 		  return { monthLabels, actualArr, planArr };
 		}
-
 		
 		// Function to format axis values
 		function formatMetricValue(value, metric) {
 		  if (["Revenue", "Spend", "P&L"].includes(metric)) {
-		    return "₹" + value.toFixed(1);
+		    return "₹" + value.toLocaleString("en-IN", { maximumFractionDigits: 0 });
 		  } else if (metric === "Conversion Rate") {
-		    return value.toFixed(1) + "%";
+		    return value.toFixed(2) + "%";
 		  } else if (metric === "ROAS") {
 		    return value.toFixed(2);
 		  } else {
-		    return value.toFixed(0);
+		    return value.toLocaleString("en-IN", { maximumFractionDigits: 0 });
 		  }
 		}
 		
@@ -942,20 +938,40 @@
 		  });
 		}
 		
-		// Initialize chart after data load
-		drawPerformanceTrend("Revenue", 7);
+		// Wait for allData before initializing
+		function initPerformanceChartWhenReady() {
+		  const interval = setInterval(() => {
+		    if (typeof allData !== "undefined" && allData.length > 0) {
+		      clearInterval(interval);
 		
-		// Add dropdown event listeners
-		document.getElementById("metricSelect").addEventListener("change", (e) => {
-		  const metric = e.target.value;
-		  const duration = parseInt(document.getElementById("durationSelect").value);
-		  drawPerformanceTrend(metric, duration);
-		});
-		document.getElementById("durationSelect").addEventListener("change", (e) => {
-		  const duration = parseInt(e.target.value);
-		  const metric = document.getElementById("metricSelect").value;
-		  drawPerformanceTrend(metric, duration);
-		});
+		      // Default selections
+		      const metricSelect = document.getElementById("metricSelect");
+		      const durationSelect = document.getElementById("durationSelect");
+		
+		      const defaultMetric = metricSelect?.value || "Revenue";
+		      const defaultDuration = parseInt(durationSelect?.value) || 7;
+		
+		      // Render default chart
+		      drawPerformanceTrend(defaultMetric, defaultDuration);
+		
+		      // Event listeners
+		      metricSelect.addEventListener("change", () => {
+		        const metric = metricSelect.value;
+		        const duration = parseInt(durationSelect.value);
+		        drawPerformanceTrend(metric, duration);
+		      });
+		
+		      durationSelect.addEventListener("change", () => {
+		        const metric = metricSelect.value;
+		        const duration = parseInt(durationSelect.value);
+		        drawPerformanceTrend(metric, duration);
+		      });
+		    }
+		  }, 300);
+		}
+		
+		document.addEventListener("DOMContentLoaded", initPerformanceChartWhenReady);
+
 
 		
 		
