@@ -7,34 +7,44 @@
 	<style>
 
 
+			/* ===== TABLE WRAPPER ===== */
 			#tableWrapper {
 			  position: relative;
 			  overflow-y: auto;
 			  border: 1px solid #ddd;
 			  margin-bottom: 40px;
-			  max-height: 340px; /* Enough for 7 rows: 2 frozen + 5 scrollable */
+			  max-height: 460px; /* Adjusted height for 7 total visible rows (2 frozen + 5 scrollable) */
 			  border-radius: 8px;
 			}
 			
-			/* Freeze header */
+			/* ===== HEADER (Frozen) ===== */
 			#mainTable thead th {
 			  position: sticky;
 			  top: 0;
-			  background: #fff;
-			  z-index: 2;
+			  background: #f3f4f6; /* soft grey header background */
+			  color: #111827;
+			  z-index: 3;
+			  font-weight: 600;
 			  border-bottom: 2px solid #ccc;
 			}
 			
-			/* Freeze total row */
+			/* ===== TOTAL ROW (Frozen) ===== */
 			#mainTable .total-row {
 			  position: sticky;
 			  bottom: 0;
-			  background: #fff;
-			  z-index: 2;
+			  background: #f3f4f6; /* same color as header */
+			  color: #111827;
+			  font-weight: 600;
+			  z-index: 3;
 			  border-top: 2px solid #ccc;
 			}
 			
-			/* Table basics */
+			/* Allow ROAS highlight to override total-row background */
+			#mainTable .total-row .roas-cell.green { background: #d1fae5 !important; color: #065f46; font-weight: bold; }
+			#mainTable .total-row .roas-cell.red { background: #fee2e2 !important; color: #991b1b; font-weight: bold; }
+			#mainTable .total-row .roas-cell.amber { background: #fef9c3 !important; color: #92400e; font-weight: bold; }
+			
+			/* ===== TABLE BASE ===== */
 			#mainTable {
 			  width: 100%;
 			  border-collapse: collapse;
@@ -43,7 +53,7 @@
 			  line-height: 1.5;
 			}
 			
-			/* Remove vertical lines */
+			/* ===== CELLS ===== */
 			#mainTable th,
 			#mainTable td {
 			  padding: 10px 8px;
@@ -53,19 +63,14 @@
 			  border-right: none;
 			}
 			
-			/* Styling for header */
-			#mainTable th {
-			  font-weight: 600;
-			  color: #111;
+			/* ===== REMOVE vertical lines ===== */
+			#mainTable th,
+			#mainTable td {
+			  border-left: none;
+			  border-right: none;
 			}
 			
-			/* Styling for total row */
-			#mainTable tr.total-row td {
-			  font-weight: bold;
-			  background-color:  #fff;
-			}
-			
-			/* Scrollbar aesthetics (optional) */
+			/* ===== SCROLLBAR (Optional) ===== */
 			#tableWrapper::-webkit-scrollbar {
 			  width: 8px;
 			}
@@ -73,6 +78,7 @@
 			  background: #ccc;
 			  border-radius: 4px;
 			}
+
 
 
 		
@@ -803,33 +809,11 @@
 		  `;
 		
 		  document.getElementById('tableContainer').innerHTML = html;
-			adjustTableHeight();
+		  document.getElementById('tableWrapper').style.maxHeight = '460px';
+	
 		}
 
-		function adjustTableHeight() {
-		  const rowHeight = 45; // average height per row
-		  const headerAndTotalRows = 2;
-		  const visibleUniversityRows = 5;
-		  const totalVisibleRows = headerAndTotalRows + visibleUniversityRows;
-		
-		  const table = document.querySelector("#mainTable");
-		  if (!table) return;
-		
-		  const bodyRows = table.querySelectorAll("tbody tr").length;
-		  const wrapper = document.querySelector("#tableWrapper");
-		
-		  // Calculate max height for 7 total rows
-		  const maxHeight = totalVisibleRows * rowHeight;
-		
-		  // If fewer rows, shrink the container height dynamically
-		  if (bodyRows + headerAndTotalRows <= totalVisibleRows) {
-		    wrapper.style.maxHeight = `${(bodyRows + headerAndTotalRows) * rowHeight}px`;
-		  } else {
-		    wrapper.style.maxHeight = `${maxHeight}px`;
-		  }
-		}
-
-
+	
 
 		function sortTable(colIndex, direction) {
 		  const table = document.getElementById("mainTable");
