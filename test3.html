@@ -7,12 +7,13 @@
 	<style>
 
 
-					#tableWrapper {
+			#tableWrapper {
 			  position: relative;
 			  overflow-y: auto;
 			  border: 1px solid #ddd;
 			  margin-bottom: 40px;
-			  max-height: 70vh; /* upper limit for very large screens */
+			  max-height: 340px; /* Enough for 7 rows: 2 frozen + 5 scrollable */
+			  border-radius: 8px;
 			}
 			
 			/* Freeze header */
@@ -21,10 +22,10 @@
 			  top: 0;
 			  background: #fff;
 			  z-index: 2;
+			  border-bottom: 2px solid #ccc;
 			}
 			
 			/* Freeze total row */
-			#mainTable tfoot,
 			#mainTable .total-row {
 			  position: sticky;
 			  bottom: 0;
@@ -33,23 +34,46 @@
 			  border-top: 2px solid #ccc;
 			}
 			
-			/* Basic table style */
+			/* Table basics */
 			#mainTable {
 			  width: 100%;
 			  border-collapse: collapse;
+			  font-family: 'Inter', sans-serif;
+			  font-size: 14px;
+			  line-height: 1.5;
 			}
 			
+			/* Remove vertical lines */
 			#mainTable th,
 			#mainTable td {
-			  padding: 10px;
+			  padding: 10px 8px;
 			  text-align: center;
-			  border: 1px solid #ddd;
+			  border-bottom: 1px solid #eee;
+			  border-left: none;
+			  border-right: none;
 			}
 			
+			/* Styling for header */
+			#mainTable th {
+			  font-weight: 600;
+			  color: #111;
+			}
+			
+			/* Styling for total row */
 			#mainTable tr.total-row td {
 			  font-weight: bold;
-			  background-color: #f8f8f8;
+			  background-color:  #111;
 			}
+			
+			/* Scrollbar aesthetics (optional) */
+			#tableWrapper::-webkit-scrollbar {
+			  width: 8px;
+			}
+			#tableWrapper::-webkit-scrollbar-thumb {
+			  background: #ccc;
+			  border-radius: 4px;
+			}
+
 
 		
 			.sort-btn {
@@ -783,10 +807,10 @@
 		}
 
 		function adjustTableHeight() {
-		  const rowHeight = 45; // approximate px height per row
-		  const headerRows = 2; // header + total
-		  const visibleRows = 7; // total visible rows
-		  const maxHeight = (visibleRows * rowHeight) + 10; // 10px padding buffer
+		  const rowHeight = 45; // average height per row
+		  const headerAndTotalRows = 2;
+		  const visibleUniversityRows = 5;
+		  const totalVisibleRows = headerAndTotalRows + visibleUniversityRows;
 		
 		  const table = document.querySelector("#mainTable");
 		  if (!table) return;
@@ -794,12 +818,17 @@
 		  const bodyRows = table.querySelectorAll("tbody tr").length;
 		  const wrapper = document.querySelector("#tableWrapper");
 		
-		  if (bodyRows + headerRows <= visibleRows) {
-		    wrapper.style.maxHeight = `${(bodyRows + headerRows) * rowHeight + 10}px`;
+		  // Calculate max height for 7 total rows
+		  const maxHeight = totalVisibleRows * rowHeight;
+		
+		  // If fewer rows, shrink the container height dynamically
+		  if (bodyRows + headerAndTotalRows <= totalVisibleRows) {
+		    wrapper.style.maxHeight = `${(bodyRows + headerAndTotalRows) * rowHeight}px`;
 		  } else {
 		    wrapper.style.maxHeight = `${maxHeight}px`;
 		  }
 		}
+
 
 
 		function sortTable(colIndex, direction) {
