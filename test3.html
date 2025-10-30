@@ -5,6 +5,30 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<title>University Performance Dashboard</title>
 	<style>
+
+			.sort-btn {
+			  background: none;
+			  border: none;
+			  color: #6b7280;
+			  font-size: 10px;
+			  cursor: pointer;
+			  padding: 0 2px;
+			  transition: color 0.2s ease;
+			}
+			
+			.sort-btn:hover {
+			  color: #111827;
+			}
+			
+			th {
+			  text-align: left;
+			  font-weight: 600;
+			  color: #111827;
+			  padding: 8px 10px;
+			  white-space: nowrap;
+			}
+
+		
 				.sort-btn {
 			background: none;
 			border: none;
@@ -614,16 +638,40 @@
 			let html = `
 			<table id="mainTable">
 				<thead>
-					<tr>
-						<th><button class="sort-btn" onclick="sortTable(0)">University</button></th>
-						<th><button class="sort-btn" onclick="sortTable(1)">Leads</button></th>
-						<th><button class="sort-btn" onclick="sortTable(2)">Admissions</button></th>
-						<th><button class="sort-btn" onclick="sortTable(3)">Spend</button></th>
-						<th><button class="sort-btn" onclick="sortTable(4)">Revenue</button></th>
-						<th><button class="sort-btn" onclick="sortTable(5)">CPL</button></th>
-						<th><button class="sort-btn" onclick="sortTable(6)">P&L</button></th>
-						<th><button class="sort-btn" onclick="sortTable(7)">ROAS</button></th>
-					</tr>
+				  <tr>
+				    <th>University 
+				      <button class="sort-btn" onclick="sortTable(0, 'asc')">▲</button>
+				      <button class="sort-btn" onclick="sortTable(0, 'desc')">▼</button>
+				    </th>
+				    <th>Leads 
+				      <button class="sort-btn" onclick="sortTable(1, 'asc')">▲</button>
+				      <button class="sort-btn" onclick="sortTable(1, 'desc')">▼</button>
+				    </th>
+				    <th>Admissions 
+				      <button class="sort-btn" onclick="sortTable(2, 'asc')">▲</button>
+				      <button class="sort-btn" onclick="sortTable(2, 'desc')">▼</button>
+				    </th>
+				    <th>Spend 
+				      <button class="sort-btn" onclick="sortTable(3, 'asc')">▲</button>
+				      <button class="sort-btn" onclick="sortTable(3, 'desc')">▼</button>
+				    </th>
+				    <th>Revenue 
+				      <button class="sort-btn" onclick="sortTable(4, 'asc')">▲</button>
+				      <button class="sort-btn" onclick="sortTable(4, 'desc')">▼</button>
+				    </th>
+				    <th>CPL 
+				      <button class="sort-btn" onclick="sortTable(5, 'asc')">▲</button>
+				      <button class="sort-btn" onclick="sortTable(5, 'desc')">▼</button>
+				    </th>
+				    <th>P&L 
+				      <button class="sort-btn" onclick="sortTable(6, 'asc')">▲</button>
+				      <button class="sort-btn" onclick="sortTable(6, 'desc')">▼</button>
+				    </th>
+				    <th>ROAS 
+				      <button class="sort-btn" onclick="sortTable(7, 'asc')">▲</button>
+				      <button class="sort-btn" onclick="sortTable(7, 'desc')">▼</button>
+				    </th>
+				  </tr>
 				</thead>
 				<tbody>
 			`;
@@ -665,39 +713,35 @@
 			document.getElementById('tableContainer').innerHTML = html;
 		}
 
-		let sortDirection = {}; // Store column sorting state
-
-		function sortTable(colIndex) {
-			const table = document.getElementById("mainTable");
-			if (!table) return;
+		function sortTable(colIndex, direction) {
+		  const table = document.getElementById("mainTable");
+		  if (!table) return;
 		
-			const tbody = table.querySelector("tbody");
-			let rows = Array.from(tbody.querySelectorAll("tr"));
-			
-			// Exclude total row from sorting
-			const totalRow = rows.pop();
+		  const tbody = table.querySelector("tbody");
+		  let rows = Array.from(tbody.querySelectorAll("tr"));
 		
-			const direction = sortDirection[colIndex] === "asc" ? "desc" : "asc";
-			sortDirection[colIndex] = direction;
+		  // Exclude total row from sorting
+		  const totalRow = rows.pop();
 		
-			const isNumeric = (val) => !isNaN(parseFloat(val.replace(/[^0-9.\-]/g, "")));
+		  const isNumeric = (val) => !isNaN(parseFloat(val.replace(/[^0-9.\-]/g, "")));
 		
-			rows.sort((a, b) => {
-				let aText = a.children[colIndex].innerText.trim();
-				let bText = b.children[colIndex].innerText.trim();
+		  rows.sort((a, b) => {
+		    let aText = a.children[colIndex].innerText.trim();
+		    let bText = b.children[colIndex].innerText.trim();
 		
-				const aVal = isNumeric(aText) ? parseFloat(aText.replace(/[^0-9.\-]/g, "")) : aText.toLowerCase();
-				const bVal = isNumeric(bText) ? parseFloat(bText.replace(/[^0-9.\-]/g, "")) : bText.toLowerCase();
+		    const aVal = isNumeric(aText) ? parseFloat(aText.replace(/[^0-9.\-]/g, "")) : aText.toLowerCase();
+		    const bVal = isNumeric(bText) ? parseFloat(bText.replace(/[^0-9.\-]/g, "")) : bText.toLowerCase();
 		
-				if (aVal < bVal) return direction === "asc" ? -1 : 1;
-				if (aVal > bVal) return direction === "asc" ? 1 : -1;
-				return 0;
-			});
+		    if (aVal < bVal) return direction === "asc" ? -1 : 1;
+		    if (aVal > bVal) return direction === "asc" ? 1 : -1;
+		    return 0;
+		  });
 		
-			tbody.innerHTML = "";
-			rows.forEach(r => tbody.appendChild(r));
-			tbody.appendChild(totalRow); // Always keep Total at bottom
+		  tbody.innerHTML = "";
+		  rows.forEach(r => tbody.appendChild(r));
+		  tbody.appendChild(totalRow); // Keep Total at bottom
 		}
+
 
 
 		function createCell(data, format = 'number') {
