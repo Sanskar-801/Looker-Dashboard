@@ -6,6 +6,52 @@
 	<title>University Performance Dashboard</title>
 	<style>
 
+
+					#tableWrapper {
+			  position: relative;
+			  overflow-y: auto;
+			  border: 1px solid #ddd;
+			  margin-bottom: 40px;
+			  max-height: 70vh; /* upper limit for very large screens */
+			}
+			
+			/* Freeze header */
+			#mainTable thead th {
+			  position: sticky;
+			  top: 0;
+			  background: #fff;
+			  z-index: 2;
+			}
+			
+			/* Freeze total row */
+			#mainTable tfoot,
+			#mainTable .total-row {
+			  position: sticky;
+			  bottom: 0;
+			  background: #fff;
+			  z-index: 2;
+			  border-top: 2px solid #ccc;
+			}
+			
+			/* Basic table style */
+			#mainTable {
+			  width: 100%;
+			  border-collapse: collapse;
+			}
+			
+			#mainTable th,
+			#mainTable td {
+			  padding: 10px;
+			  text-align: center;
+			  border: 1px solid #ddd;
+			}
+			
+			#mainTable tr.total-row td {
+			  font-weight: bold;
+			  background-color: #f8f8f8;
+			}
+
+		
 			.sort-btn {
 			  background: none;
 			  border: none;
@@ -162,9 +208,11 @@
 		<div class="kpi-section" id="kpiSection"></div>
 		<div class="info-banner" id="infoBanner"></div>
 		<div id="errorMessage" class="error"></div>
-		<div class="table-container" id="tableContainer">
-			<div class="loading">Initializing...</div>
+		<div id="tableWrapper">
+		  <div id="tableContainer"></div>
 		</div>
+
+
 				<!-- ===== PERFORMANCE TREND CHART SECTION ===== -->
 		<div style="margin-top: 50px; padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
 		  <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 16px;">Performance Trend</h3>
@@ -621,7 +669,7 @@
 						<div class="bullet-chart">
 							<div class="bullet-fill ${bulletClass}" style="width: ${bulletWidth}%"></div>
 						</div>
-						<div class="kpi-percentage ${bulletClass}">${achievement.toFixed(1)}% achieved</div>
+						<div class="kpi-percentage ${bulletClass}">${achievement.toFixed(1)}%</div>
 					</div>
 				`;
 			});
@@ -630,88 +678,129 @@
 		}
 
 		function renderTable() {
-			if (filteredData.length === 0) {
-				document.getElementById('tableContainer').innerHTML = '<div class="loading">No data for selected filters</div>';
-				return;
-			}
+		  if (filteredData.length === 0) {
+		    document.getElementById('tableContainer').innerHTML =
+		      '<div class="loading">No data for selected filters</div>';
+		    return;
+		  }
 		
-			let html = `
-			<table id="mainTable">
-				<thead>
-				  <tr>
-				    <th>University 
-				      <button class="sort-btn" onclick="sortTable(0, 'asc')">▲</button>
-				      <button class="sort-btn" onclick="sortTable(0, 'desc')">▼</button>
-				    </th>
-				    <th>Leads 
-				      <button class="sort-btn" onclick="sortTable(1, 'asc')">▲</button>
-				      <button class="sort-btn" onclick="sortTable(1, 'desc')">▼</button>
-				    </th>
-				    <th>Admissions 
-				      <button class="sort-btn" onclick="sortTable(2, 'asc')">▲</button>
-				      <button class="sort-btn" onclick="sortTable(2, 'desc')">▼</button>
-				    </th>
-				    <th>Spend 
-				      <button class="sort-btn" onclick="sortTable(3, 'asc')">▲</button>
-				      <button class="sort-btn" onclick="sortTable(3, 'desc')">▼</button>
-				    </th>
-				    <th>Revenue 
-				      <button class="sort-btn" onclick="sortTable(4, 'asc')">▲</button>
-				      <button class="sort-btn" onclick="sortTable(4, 'desc')">▼</button>
-				    </th>
-				    <th>CPL 
-				      <button class="sort-btn" onclick="sortTable(5, 'asc')">▲</button>
-				      <button class="sort-btn" onclick="sortTable(5, 'desc')">▼</button>
-				    </th>
-				    <th>P&L 
-				      <button class="sort-btn" onclick="sortTable(6, 'asc')">▲</button>
-				      <button class="sort-btn" onclick="sortTable(6, 'desc')">▼</button>
-				    </th>
-				    <th>ROAS 
-				      <button class="sort-btn" onclick="sortTable(7, 'asc')">▲</button>
-				      <button class="sort-btn" onclick="sortTable(7, 'desc')">▼</button>
-				    </th>
-				  </tr>
-				</thead>
-				<tbody>
-			`;
+		  let html = `
+		    <table id="mainTable">
+		      <thead>
+		        <tr>
+		          <th>University 
+		            <button class="sort-btn" onclick="sortTable(0, 'asc')">▲</button>
+		            <button class="sort-btn" onclick="sortTable(0, 'desc')">▼</button>
+		          </th>
+		          <th>Leads 
+		            <button class="sort-btn" onclick="sortTable(1, 'asc')">▲</button>
+		            <button class="sort-btn" onclick="sortTable(1, 'desc')">▼</button>
+		          </th>
+		          <th>Admissions 
+		            <button class="sort-btn" onclick="sortTable(2, 'asc')">▲</button>
+		            <button class="sort-btn" onclick="sortTable(2, 'desc')">▼</button>
+		          </th>
+		          <th>Spend 
+		            <button class="sort-btn" onclick="sortTable(3, 'asc')">▲</button>
+		            <button class="sort-btn" onclick="sortTable(3, 'desc')">▼</button>
+		          </th>
+		          <th>Revenue 
+		            <button class="sort-btn" onclick="sortTable(4, 'asc')">▲</button>
+		            <button class="sort-btn" onclick="sortTable(4, 'desc')">▼</button>
+		          </th>
+		          <th>CPL 
+		            <button class="sort-btn" onclick="sortTable(5, 'asc')">▲</button>
+		            <button class="sort-btn" onclick="sortTable(5, 'desc')">▼</button>
+		          </th>
+		          <th>P&L 
+		            <button class="sort-btn" onclick="sortTable(6, 'asc')">▲</button>
+		            <button class="sort-btn" onclick="sortTable(6, 'desc')">▼</button>
+		          </th>
+		          <th>ROAS 
+		            <button class="sort-btn" onclick="sortTable(7, 'asc')">▲</button>
+		            <button class="sort-btn" onclick="sortTable(7, 'desc')">▼</button>
+		          </th>
+		        </tr>
+		      </thead>
+		      <tbody>
+		  `;
 		
-			filteredData.forEach(row => {
-				const roasPlan = row.roas.plan || 0;
-				let roasClass = 'red';
-				if (roasPlan === 0) roasClass = 'amber';
-				else roasClass = row.roas.actual >= roasPlan ? 'green' : ((roasPlan - row.roas.actual) / roasPlan <= 0.2 ? 'amber' : 'red');
+		  filteredData.forEach(row => {
+		    const roasPlan = row.roas.plan || 0;
+		    let roasClass = 'red';
+		    if (roasPlan === 0) roasClass = 'amber';
+		    else
+		      roasClass =
+		        row.roas.actual >= roasPlan
+		          ? 'green'
+		          : (roasPlan - row.roas.actual) / roasPlan <= 0.2
+		          ? 'amber'
+		          : 'red';
 		
-				html += `<tr>
-					<td>${row.university || '-'}</td>
-					<td>${createCell(row.leads, 'integer')}</td>
-					<td>${createCell(row.admissions, 'integer')}</td>
-					<td>${createCell(row.spend, 'currency')}</td>
-					<td>${createCell(row.revenue, 'currency')}</td>
-					<td>${createCell(row.cpl, 'currency')}</td>
-					<td>${createCell(row.pl, 'currency')}</td>
-					<td class="roas-cell ${roasClass}">${createCell(row.roas, 'decimal')}</td>
-				</tr>`;
-			});
+		    html += `
+		      <tr>
+		        <td>${row.university || '-'}</td>
+		        <td>${createCell(row.leads, 'integer')}</td>
+		        <td>${createCell(row.admissions, 'integer')}</td>
+		        <td>${createCell(row.spend, 'currency')}</td>
+		        <td>${createCell(row.revenue, 'currency')}</td>
+		        <td>${createCell(row.cpl, 'currency')}</td>
+		        <td>${createCell(row.pl, 'currency')}</td>
+		        <td class="roas-cell ${roasClass}">${createCell(row.roas, 'decimal')}</td>
+		      </tr>`;
+		  });
 		
-			const totalRoasPlan = totals.roas.plan || 0;
-			let totalRoasClass = 'red';
-			if (totalRoasPlan === 0) totalRoasClass = 'amber';
-			else totalRoasClass = totals.roas.actual >= totalRoasPlan ? 'green' : ((totalRoasPlan - totals.roas.actual) / totalRoasPlan <= 0.2 ? 'amber' : 'red');
+		  const totalRoasPlan = totals.roas.plan || 0;
+		  let totalRoasClass = 'red';
+		  if (totalRoasPlan === 0) totalRoasClass = 'amber';
+		  else
+		    totalRoasClass =
+		      totals.roas.actual >= totalRoasPlan
+		        ? 'green'
+		        : (totalRoasPlan - totals.roas.actual) / totalRoasPlan <= 0.2
+		        ? 'amber'
+		        : 'red';
 		
-			html += `<tr class="total-row">
-				<td>Total</td>
-				<td>${createCell(totals.leads, 'integer')}</td>
-				<td>${createCell(totals.admissions, 'integer')}</td>
-				<td>${createCell(totals.spend, 'currency')}</td>
-				<td>${createCell(totals.revenue, 'currency')}</td>
-				<td>${createCell(totals.cpl, 'currency')}</td>
-				<td>${createCell(totals.pl, 'currency')}</td>
-				<td class="roas-cell ${totalRoasClass}">${createCell(totals.roas, 'decimal')}</td>
-			</tr></tbody></table>`;
+		  html += `
+		      </tbody>
+		      <tfoot>
+		        <tr class="total-row">
+		          <td>Total</td>
+		          <td>${createCell(totals.leads, 'integer')}</td>
+		          <td>${createCell(totals.admissions, 'integer')}</td>
+		          <td>${createCell(totals.spend, 'currency')}</td>
+		          <td>${createCell(totals.revenue, 'currency')}</td>
+		          <td>${createCell(totals.cpl, 'currency')}</td>
+		          <td>${createCell(totals.pl, 'currency')}</td>
+		          <td class="roas-cell ${totalRoasClass}">${createCell(totals.roas, 'decimal')}</td>
+		        </tr>
+		      </tfoot>
+		    </table>
+		  `;
 		
-			document.getElementById('tableContainer').innerHTML = html;
+		  document.getElementById('tableContainer').innerHTML = html;
+			adjustTableHeight();
 		}
+
+		function adjustTableHeight() {
+		  const rowHeight = 45; // approximate px height per row
+		  const headerRows = 2; // header + total
+		  const visibleRows = 7; // total visible rows
+		  const maxHeight = (visibleRows * rowHeight) + 10; // 10px padding buffer
+		
+		  const table = document.querySelector("#mainTable");
+		  if (!table) return;
+		
+		  const bodyRows = table.querySelectorAll("tbody tr").length;
+		  const wrapper = document.querySelector("#tableWrapper");
+		
+		  if (bodyRows + headerRows <= visibleRows) {
+		    wrapper.style.maxHeight = `${(bodyRows + headerRows) * rowHeight + 10}px`;
+		  } else {
+		    wrapper.style.maxHeight = `${maxHeight}px`;
+		  }
+		}
+
 
 		function sortTable(colIndex, direction) {
 		  const table = document.getElementById("mainTable");
