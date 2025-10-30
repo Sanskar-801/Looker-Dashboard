@@ -957,25 +957,25 @@
 		  drawPerformanceTrend(metric, duration);
 		});
 
-				// ====== YEAR-TO-DATE PERFORMANCE CHART (REAL DATA) ======
 		
+		
+				// ======= YEAR-TO-DATE (YTD) PERFORMANCE CHART =======
 		let ytdChartInstance = null;
+		let currentMetricKey = "Revenue"; // default metric
 		const monthsOrder = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 		
 		// ========== POPULATE YEAR DROPDOWN ==========
 		function populateYearDropdown() {
 		  const yearSelect = document.getElementById("yearSelect");
-		  const years = [...new Set(allData.map(row => row.year || new Date(row.date).getFullYear()))].sort((a,b) => b - a);
+		  if (!yearSelect) return;
+		
+		  const years = [...new Set(allData.map(row => row.year || new Date(row.date).getFullYear()))]
+		    .sort((a, b) => b - a);
 		
 		  yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
 		
 		  // Default: select latest year
 		  yearSelect.value = years[0];
-		
-		  yearSelect.addEventListener("change", () => {
-		    const metricKey = currentMetricKey; // assuming you store selected metric
-		    renderYTDChart(metricKey, parseInt(yearSelect.value));
-		  });
 		}
 		
 		// ========== FUNCTION TO GET CUMULATIVE DATA (WITHIN SELECTED YEAR) ==========
@@ -1084,6 +1084,17 @@
 		  return { monthLabels, actualArr, planArr };
 		}
 		
+		// ========== HELPER: FORMAT NUMBERS BASED ON METRIC ==========
+		function formatMetricValue(value, metricKey) {
+		  if (["CPL", "Revenue", "Spend", "P&L", "Leads", "Admissions"].includes(metricKey)) {
+		    return value.toLocaleString("en-IN", { maximumFractionDigits: 0, minimumFractionDigits: 0 });
+		  }
+		  if (["Conversion Rate", "ROAS"].includes(metricKey)) {
+		    return value.toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+		  }
+		  return value;
+		}
+		
 		// ========== RENDER THE CHART ==========
 		function renderYTDChart(metricKey, selectedYear) {
 		  const ctx = document.getElementById("ytdPerformanceChart").getContext("2d");
@@ -1161,12 +1172,40 @@
 		  });
 		}
 		
-		// ========== INITIALIZE ==========
+		// ========== INITIALIZE ON PAGE LOAD ==========
 		document.addEventListener("DOMContentLoaded", () => {
+		  if (!allData || allData.length === 0) {
+		    console.warn("YTD Chart: allData not ready yet.");
+		    return;
+		  }
+		
+		  // Populate year dropdown first
 		  populateYearDropdown();
-		  const defaultYear = parseInt(document.getElementById("yearSelect").value);
-		  renderYTDChart("Revenue", defaultYear); // default metric
+		
+		  const metricSelect = document.getElementById("ytdMetricSelect");
+		  const yearSelect = document.getElementById("yearSelect");
+		
+		  // Default metric
+		  currentMetricKey = metricSelect?.value || "Revenue";
+		
+		  // Default year = latest
+		  const defaultYear = parseInt(yearSelect?.options[0]?.value);
+		
+		  // Render immediately
+		  renderYTDChart(currentMetricKey, defaultYear);
+		
+		  // Metric change
+		  metricSelect.addEventListener("change", () => {
+		    currentMetricKey = metricSelect.value;
+		    renderYTDChart(currentMetricKey, parseInt(yearSelect.value));
+		  });
+		
+		  // Year change
+		  yearSelect.addEventListener("change", () => {
+		    renderYTDChart(currentMetricKey, parseInt(yearSelect.value));
+		  });
 		});
+
 
 
 
