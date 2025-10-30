@@ -960,6 +960,7 @@
 		
 		
 				// ======= YEAR-TO-DATE (YTD) PERFORMANCE CHART =======
+		// ======= YEAR-TO-DATE (YTD) PERFORMANCE CHART =======
 		let ytdChartInstance = null;
 		let currentMetricKey = "Revenue"; // default metric
 		const monthsOrder = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -967,15 +968,16 @@
 		// ========== POPULATE YEAR DROPDOWN ==========
 		function populateYearDropdown() {
 		  const yearSelect = document.getElementById("yearSelect");
-		  if (!yearSelect) return;
+		  if (!yearSelect || !allData || allData.length === 0) return;
 		
 		  const years = [...new Set(allData.map(row => row.year || new Date(row.date).getFullYear()))]
-		    .sort((a, b) => b - a);
+			.filter(y => y) // remove undefined
+			.sort((a, b) => b - a);
+		
+		  if (years.length === 0) return;
 		
 		  yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
-		
-		  // Default: select latest year
-		  yearSelect.value = years[0];
+		  yearSelect.value = years[0]; // default to latest year
 		}
 		
 		// ========== FUNCTION TO GET CUMULATIVE DATA (WITHIN SELECTED YEAR) ==========
@@ -984,118 +986,112 @@
 		
 		  // Filter for selected year only
 		  const filteredData = allData.filter(row => {
-		    const year = row.year || new Date(row.date).getFullYear();
-		    return year === selectedYear;
+			const year = row.year || new Date(row.date).getFullYear();
+			return year === selectedYear;
 		  });
 		
-		  // Aggregate by month
 		  filteredData.forEach(row => {
-		    const month = row.month;
-		    if (!monthly[month]) {
-		      monthly[month] = {
-		        spendActual: 0, spendPlan: 0,
-		        leadsActual: 0, leadsPlan: 0,
-		        admissionsActual: 0, admissionsPlan: 0,
-		        revenueActual: 0, revenuePlan: 0
-		      };
-		    }
+			const month = row.month;
+			if (!monthly[month]) {
+			  monthly[month] = {
+				spendActual: 0, spendPlan: 0,
+				leadsActual: 0, leadsPlan: 0,
+				admissionsActual: 0, admissionsPlan: 0,
+				revenueActual: 0, revenuePlan: 0
+			  };
+			}
 		
-		    monthly[month].spendActual += Number(row.spend?.actual || 0);
-		    monthly[month].spendPlan  += Number(row.spend?.plan  || 0);
-		    monthly[month].leadsActual += Number(row.leads?.actual || 0);
-		    monthly[month].leadsPlan  += Number(row.leads?.plan  || 0);
-		    monthly[month].admissionsActual += Number(row.admissions?.actual || 0);
-		    monthly[month].admissionsPlan  += Number(row.admissions?.plan  || 0);
-		    monthly[month].revenueActual += Number(row.revenue?.actual || 0);
-		    monthly[month].revenuePlan  += Number(row.revenue?.plan  || 0);
+			monthly[month].spendActual += Number(row.spend?.actual || 0);
+			monthly[month].spendPlan  += Number(row.spend?.plan  || 0);
+			monthly[month].leadsActual += Number(row.leads?.actual || 0);
+			monthly[month].leadsPlan  += Number(row.leads?.plan  || 0);
+			monthly[month].admissionsActual += Number(row.admissions?.actual || 0);
+			monthly[month].admissionsPlan  += Number(row.admissions?.plan  || 0);
+			monthly[month].revenueActual += Number(row.revenue?.actual || 0);
+			monthly[month].revenuePlan  += Number(row.revenue?.plan  || 0);
 		  });
 		
 		  const monthLabels = [];
 		  const actualArr = [];
 		  const planArr = [];
 		
-		  // Running totals (cumulative)
 		  let cum = {
-		    spendActual: 0, spendPlan: 0,
-		    leadsActual: 0, leadsPlan: 0,
-		    admissionsActual: 0, admissionsPlan: 0,
-		    revenueActual: 0, revenuePlan: 0
+			spendActual: 0, spendPlan: 0,
+			leadsActual: 0, leadsPlan: 0,
+			admissionsActual: 0, admissionsPlan: 0,
+			revenueActual: 0, revenuePlan: 0
 		  };
 		
 		  monthsOrder.forEach(m => {
-		    if (!monthly[m]) return;
+			if (!monthly[m]) return;
 		
-		    const mData = monthly[m];
+			const mData = monthly[m];
+			cum.spendActual += mData.spendActual;
+			cum.spendPlan   += mData.spendPlan;
+			cum.leadsActual += mData.leadsActual;
+			cum.leadsPlan   += mData.leadsPlan;
+			cum.admissionsActual += mData.admissionsActual;
+			cum.admissionsPlan   += mData.admissionsPlan;
+			cum.revenueActual += mData.revenueActual;
+			cum.revenuePlan   += mData.revenuePlan;
 		
-		    // Add to cumulative totals
-		    cum.spendActual += mData.spendActual;
-		    cum.spendPlan   += mData.spendPlan;
-		    cum.leadsActual += mData.leadsActual;
-		    cum.leadsPlan   += mData.leadsPlan;
-		    cum.admissionsActual += mData.admissionsActual;
-		    cum.admissionsPlan   += mData.admissionsPlan;
-		    cum.revenueActual += mData.revenueActual;
-		    cum.revenuePlan   += mData.revenuePlan;
+			let actual = 0, plan = 0;
 		
-		    let actual = 0, plan = 0;
+			switch (metricKey) {
+			  case "Leads":
+				actual = cum.leadsActual;
+				plan   = cum.leadsPlan;
+				break;
+			  case "Admissions":
+				actual = cum.admissionsActual;
+				plan   = cum.admissionsPlan;
+				break;
+			  case "Revenue":
+				actual = cum.revenueActual;
+				plan   = cum.revenuePlan;
+				break;
+			  case "Spend":
+				actual = cum.spendActual;
+				plan   = cum.spendPlan;
+				break;
+			  case "P&L":
+				actual = cum.revenueActual - cum.spendActual;
+				plan   = cum.revenuePlan - cum.spendPlan;
+				break;
+			  case "CPL":
+				actual = cum.leadsActual > 0 ? (cum.spendActual / cum.leadsActual) : 0;
+				plan   = cum.leadsPlan   > 0 ? (cum.spendPlan   / cum.leadsPlan)   : 0;
+				break;
+			  case "Conversion Rate":
+				actual = cum.leadsActual > 0 ? (cum.admissionsActual / cum.leadsActual) * 100 : 0;
+				plan   = cum.leadsPlan   > 0 ? (cum.admissionsPlan   / cum.leadsPlan)   * 100 : 0;
+				break;
+			  case "ROAS":
+				actual = cum.spendActual > 0 ? (cum.revenueActual / cum.spendActual) : 0;
+				plan   = cum.spendPlan   > 0 ? (cum.revenuePlan   / cum.spendPlan)   : 0;
+				break;
+			}
 		
-		    switch (metricKey) {
-		      case "Leads":
-		        actual = cum.leadsActual;
-		        plan   = cum.leadsPlan;
-		        break;
-		      case "Admissions":
-		        actual = cum.admissionsActual;
-		        plan   = cum.admissionsPlan;
-		        break;
-		      case "Revenue":
-		        actual = cum.revenueActual;
-		        plan   = cum.revenuePlan;
-		        break;
-		      case "Spend":
-		        actual = cum.spendActual;
-		        plan   = cum.spendPlan;
-		        break;
-		      case "P&L":
-		        actual = cum.revenueActual - cum.spendActual;
-		        plan   = cum.revenuePlan - cum.spendPlan;
-		        break;
-		      case "CPL":
-		        actual = cum.leadsActual > 0 ? (cum.spendActual / cum.leadsActual) : 0;
-		        plan   = cum.leadsPlan   > 0 ? (cum.spendPlan   / cum.leadsPlan)   : 0;
-		        break;
-		      case "Conversion Rate":
-		        actual = cum.leadsActual > 0 ? (cum.admissionsActual / cum.leadsActual) * 100 : 0;
-		        plan   = cum.leadsPlan   > 0 ? (cum.admissionsPlan   / cum.leadsPlan)   * 100 : 0;
-		        break;
-		      case "ROAS":
-		        actual = cum.spendActual > 0 ? (cum.revenueActual / cum.spendActual) : 0;
-		        plan   = cum.spendPlan   > 0 ? (cum.revenuePlan   / cum.spendPlan)   : 0;
-		        break;
-		      default:
-		        actual = 0; plan = 0;
-		    }
-		
-		    monthLabels.push(m);
-		    actualArr.push(actual);
-		    planArr.push(plan);
+			monthLabels.push(m);
+			actualArr.push(actual);
+			planArr.push(plan);
 		  });
 		
 		  return { monthLabels, actualArr, planArr };
 		}
 		
-		// ========== HELPER: FORMAT NUMBERS BASED ON METRIC ==========
+		// ========== FORMAT VALUES ==========
 		function formatMetricValue(value, metricKey) {
 		  if (["CPL", "Revenue", "Spend", "P&L", "Leads", "Admissions"].includes(metricKey)) {
-		    return value.toLocaleString("en-IN", { maximumFractionDigits: 0, minimumFractionDigits: 0 });
+			return value.toLocaleString("en-IN", { maximumFractionDigits: 0, minimumFractionDigits: 0 });
 		  }
 		  if (["Conversion Rate", "ROAS"].includes(metricKey)) {
-		    return value.toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+			return value.toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 		  }
 		  return value;
 		}
 		
-		// ========== RENDER THE CHART ==========
+		// ========== RENDER CHART ==========
 		function renderYTDChart(metricKey, selectedYear) {
 		  const ctx = document.getElementById("ytdPerformanceChart").getContext("2d");
 		  const { monthLabels, actualArr, planArr } = getYTDMonthlyMetrics(metricKey, selectedYear);
@@ -1103,109 +1099,104 @@
 		  if (ytdChartInstance) ytdChartInstance.destroy();
 		
 		  ytdChartInstance = new Chart(ctx, {
-		    type: "bar",
-		    data: {
-		      labels: monthLabels,
-		      datasets: [
-		        {
-		          label: "Planned",
-		          data: planArr,
-		          backgroundColor: "#93c5fd",
-		          borderRadius: 6,
-		          barThickness: 20
-		        },
-		        {
-		          label: "Actual",
-		          data: actualArr,
-		          backgroundColor: "#3b82f6",
-		          borderRadius: 6,
-		          barThickness: 20
-		        },
-		        {
-		          type: "line",
-		          label: "Actual Trend",
-		          data: actualArr,
-		          borderColor: "#10b981",
-		          tension: 0.4,
-		          fill: false,
-		          pointRadius: 4,
-		          pointBackgroundColor: "#10b981",
-		          borderWidth: 2
-		        }
-		      ]
-		    },
-		    options: {
-		      responsive: true,
-		      maintainAspectRatio: false,
-		      interaction: { mode: "index", intersect: false },
-		      plugins: {
-		        legend: {
-		          position: "bottom",
-		          labels: { usePointStyle: true, boxWidth: 8, padding: 15 }
-		        },
-		        tooltip: {
-		          backgroundColor: "#1e293b",
-		          titleColor: "#fff",
-		          bodyColor: "#f8fafc",
-		          callbacks: {
-		            label: function (context) {
-		              const label = context.dataset.label || "";
-		              return `${label}: ${formatMetricValue(context.parsed.y, metricKey)}`;
-		            }
-		          }
-		        }
-		      },
-		      scales: {
-		        y: {
-		          ticks: {
-		            color: "#374151",
-		            callback: val => formatMetricValue(val, metricKey)
-		          },
-		          grid: { color: "#f3f4f6" }
-		        },
-		        x: {
-		          ticks: { color: "#6b7280" },
-		          grid: { display: false }
-		        }
-		      }
-		    }
+			type: "bar",
+			data: {
+			  labels: monthLabels,
+			  datasets: [
+				{
+				  label: "Planned",
+				  data: planArr,
+				  backgroundColor: "#93c5fd",
+				  borderRadius: 6,
+				  barThickness: 20
+				},
+				{
+				  label: "Actual",
+				  data: actualArr,
+				  backgroundColor: "#3b82f6",
+				  borderRadius: 6,
+				  barThickness: 20
+				},
+				{
+				  type: "line",
+				  label: "Actual Trend",
+				  data: actualArr,
+				  borderColor: "#10b981",
+				  tension: 0.4,
+				  fill: false,
+				  pointRadius: 4,
+				  pointBackgroundColor: "#10b981",
+				  borderWidth: 2
+				}
+			  ]
+			},
+			options: {
+			  responsive: true,
+			  maintainAspectRatio: false,
+			  interaction: { mode: "index", intersect: false },
+			  plugins: {
+				legend: {
+				  position: "bottom",
+				  labels: { usePointStyle: true, boxWidth: 8, padding: 15 }
+				},
+				tooltip: {
+				  backgroundColor: "#1e293b",
+				  titleColor: "#fff",
+				  bodyColor: "#f8fafc",
+				  callbacks: {
+					label: function (context) {
+					  const label = context.dataset.label || "";
+					  return `${label}: ${formatMetricValue(context.parsed.y, metricKey)}`;
+					}
+				  }
+				}
+			  },
+			  scales: {
+				y: {
+				  ticks: {
+					color: "#374151",
+					callback: val => formatMetricValue(val, metricKey)
+				  },
+				  grid: { color: "#f3f4f6" }
+				},
+				x: {
+				  ticks: { color: "#6b7280" },
+				  grid: { display: false }
+				}
+			  }
+			}
 		  });
 		}
 		
-		// ========== INITIALIZE ON PAGE LOAD ==========
-		document.addEventListener("DOMContentLoaded", () => {
-		  if (!allData || allData.length === 0) {
-		    console.warn("YTD Chart: allData not ready yet.");
-		    return;
-		  }
+		// ========== SAFE INITIALIZATION (Wait for allData) ==========
+		function initYTDChartWhenReady() {
+		  const interval = setInterval(() => {
+			if (typeof allData !== "undefined" && allData.length > 0) {
+			  clearInterval(interval);
+			  populateYearDropdown();
 		
-		  // Populate year dropdown first
-		  populateYearDropdown();
+			  const metricSelect = document.getElementById("ytdMetricSelect");
+			  const yearSelect = document.getElementById("yearSelect");
 		
-		  const metricSelect = document.getElementById("ytdMetricSelect");
-		  const yearSelect = document.getElementById("yearSelect");
+			  currentMetricKey = metricSelect?.value || "Revenue";
+			  const defaultYear = parseInt(yearSelect?.value) || new Date().getFullYear();
 		
-		  // Default metric
-		  currentMetricKey = metricSelect?.value || "Revenue";
+			  renderYTDChart(currentMetricKey, defaultYear);
 		
-		  // Default year = latest
-		  const defaultYear = parseInt(yearSelect?.options[0]?.value);
+			  metricSelect.addEventListener("change", () => {
+				currentMetricKey = metricSelect.value;
+				renderYTDChart(currentMetricKey, parseInt(yearSelect.value));
+			  });
 		
-		  // Render immediately
-		  renderYTDChart(currentMetricKey, defaultYear);
+			  yearSelect.addEventListener("change", () => {
+				renderYTDChart(currentMetricKey, parseInt(yearSelect.value));
+			  });
+			}
+		  }, 300);
+		}
 		
-		  // Metric change
-		  metricSelect.addEventListener("change", () => {
-		    currentMetricKey = metricSelect.value;
-		    renderYTDChart(currentMetricKey, parseInt(yearSelect.value));
-		  });
+		document.addEventListener("DOMContentLoaded", initYTDChartWhenReady);
 		
-		  // Year change
-		  yearSelect.addEventListener("change", () => {
-		    renderYTDChart(currentMetricKey, parseInt(yearSelect.value));
-		  });
-		});
-
 
 
 
